@@ -1,3 +1,3 @@
 # ParanoidAndroid
 
-Everything important goes somewhere in ParanoidEnv/ParanoidAndroid
+Everything important goes somewhere in ParanoidEnv/ParanoidAndroidProject
