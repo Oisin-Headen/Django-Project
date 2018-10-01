@@ -3,12 +3,6 @@
 
 <p>This page will allow the user to view a survey, for an ID</p>
 
-
-{% if status == "not_found" %}
-<!-- If no ID... -->
-<h1>No survey chosen</h1>
-{% endif %}
-
 {% if status == "invalid" %}
 <!-- If ID not Valid -->
 <h1>Id not valid</h1>
@@ -17,4 +11,5 @@
 {% if status == "valid" %}
 <!-- Valid Id, Get questions. -->
 <h1>Loop through questions</h1>
+
 {% endif %}
