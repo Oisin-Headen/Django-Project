@@ -6,4 +6,5 @@ from . import views
 urlpatterns = [
     path('<int:question_id>', views.index, name='index'),
     path('', views.index, name='index'),
+    path('testjson/', views.testjson, name='testjson'),
 ]
