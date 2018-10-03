@@ -1,6 +1,7 @@
 """This file contains the url method definitions"""
 from django.http import HttpResponse
 from django.template import loader
+import json
 
 
 # def index(request):
@@ -18,9 +19,13 @@ def index(request, question_id=-1):
 
 def testjson(request):
     """Testing json files and file reading"""
+    data = {
+        "first": "What is your name",
+        "second": "What is your quest?",
+        "third": "What is your favourite colour?"
+    }
     file = open("data/test.json", "w+")
-    file.write('{"first": "What is your name", "second": "What is your quest?",'+
-               '"third": "What is your favourite colour?"}')
+    file.write(json.dumps(data, indent=4))
     file.close()
     return HttpResponse(loader.get_template("paranoidApp/index.html").render({}, request))
 
