@@ -1,7 +1,8 @@
 """This file contains the url method definitions"""
+import json
 from django.http import HttpResponse
 from django.template import loader
-import json
+
 
 
 # def index(request):
@@ -28,6 +29,21 @@ def testjson(request):
     file.write(json.dumps(data, indent=4))
     file.close()
     return HttpResponse(loader.get_template("paranoidApp/index.html").render({}, request))
+
+def testpost(request):
+    """Testing post data"""
+    try:
+        postdata = request.POST
+    except KeyError:
+        pass
+    else:
+        return HttpResponse(loader.get_template("paranoidApp/survey_complete.html")
+                            .render({"text":postdata}, request))
+
+def createsurvey(request):
+    """Testing post currently"""
+    return HttpResponse(loader.get_template("paranoidApp/survey_creation_form.html")
+                        .render({}, request))
 
 # Survey creation
 # Post data comes in,
