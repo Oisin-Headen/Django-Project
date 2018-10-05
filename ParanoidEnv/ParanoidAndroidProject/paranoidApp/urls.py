@@ -9,4 +9,5 @@ urlpatterns = [
     path('testjson/', views.testjson, name='testjson'),
     path('createsurvey/', views.createsurvey, name='createsurvey'),
     path('testpost/', views.testpost, name='testpost'),
+    path('view/', views.view_survey, name='view_survey'),
 ]

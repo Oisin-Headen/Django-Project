@@ -45,6 +45,15 @@ def createsurvey(request):
     return HttpResponse(loader.get_template("paranoidApp/survey_creation_form.html")
                         .render({}, request))
 
+def view_survey(request):
+    """View and respond to a survey.
+    Currently only views the hard-coded sample survey"""
+    file = open("data/surveydata.json", "r")
+    json_data = json.loads(file.read())
+    survey_data = {"survey":json_data}
+    return HttpResponse(loader.get_template("paranoidApp/survey_view.html")
+                        .render(survey_data, request))
+
 # Survey creation
 # Post data comes in,
 # string starts: '{"survey":['
@@ -56,3 +65,4 @@ def createsurvey(request):
 #           <[other_details]>
 #       },"
 # string ends: ']}'
+

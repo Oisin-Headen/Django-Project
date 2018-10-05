@@ -1,0 +1,104 @@
+<style>
+        select {
+            overflow-y: auto;
+        }
+    
+        section > label:first-child {
+            display: block;
+            background-color: rgb(100,100,100);
+            font-weight: bold;
+            font-size: 20px;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        section {
+            margin-bottom: 30px;
+        }
+        
+        form {
+            background-color: rgb(240,240,240);
+        }
+        
+    </style>
+
+<h1>{{survey.name}}</h1>
+
+<h2>{{survey.desc}}</h2>
+
+<form>
+{% for question in survey.questions %}
+    <section>
+        {% if question.type == "text" %}
+            <label>Q{{forloop.counter}}: {{question.text}}</label>
+            <textarea></textarea>
+        {% elif question.type == "single_answer_multiple_choice" %}
+            <label>Q{{forloop.counter}}: {{question.text}}</label>
+            <select name="{{survey.name}}-{{forloop.counter}}">
+                {% for choice in question.choices %}
+                    <option>{{choice}}</option>
+                {% endfor %}
+            </select>
+        {% elif question.type == "boolean" %}
+            <label>Q{{forloop.counter}}: {{question.text}}</label>
+            <input type="radio" name="Q{{forloop.counter}}" value="Yes" id="Q{{forloop.counter}}A1">
+            <label for="Q2A1">Yes</label>
+            <input type="radio" name="Q{{forloop.counter}}" value="No" id="Q{{forloop.counter}}A2">
+            <label for="Q2A2">No</label>
+        {% elif question.type == "scale" %}
+            <label>Q{{forloop.counter}}: {{question.text}}</label> 
+            {% for choice in question.choices %}
+                <input type="radio" name="Q{{forloop.parentloop.counter}}" value="{{choice}}" id="Q{{forloop.parentloop.counter}}-{{forloop.counter}}">
+                <label for="Q{{forloop.parentloop.counter}}-{{forloop.counter}}">{{choice}}</label>
+            {% endfor %}
+        {% elif question.type == "number_rating" %}
+            <label>Q{{forloop.counter}}: {{question.text}}</label> 
+            <input type="range" min="{{question.min}}" max="{{question.max}}">
+        {% elif question.type == "email" %}
+            <label>Q{{forloop.counter}}: {{question.text}}</label>
+            <input type="email">      
+        {% else %}
+            <label>Q{{forloop.counter}}: {{question.text}}</label>
+        {% endif %}
+
+
+        {% if question.subquestions != null %}
+            {% for subquestion in question.subquestions %}
+                <section>
+                    {% if question.type == "text" %}
+                        <label>Q{{forloop.counter}}: {{question.text}}</label>
+                        <textarea></textarea>
+                    {% elif question.type == "single_answer_multiple_choice" %}
+                        <label>Q{{forloop.counter}}: {{question.text}}</label>
+                        <select name="{{survey.name}}-{{forloop.counter}}">
+                            {% for choice in question.choices %}
+                                <option>{{choice}}</option>
+                            {% endfor %}
+                        </select>
+                    {% elif question.type == "boolean" %}
+                        <label>Q{{forloop.counter}}: {{question.text}}</label>
+                        <input type="radio" name="Q{{forloop.counter}}" value="Yes" id="Q{{forloop.counter}}A1">
+                        <label for="Q2A1">Yes</label>
+                        <input type="radio" name="Q{{forloop.counter}}" value="No" id="Q{{forloop.counter}}A2">
+                        <label for="Q2A2">No</label>
+                    {% elif question.type == "scale" %}
+                        <label>Q{{forloop.counter}}: {{question.text}}</label> 
+                        {% for choice in question.choices %}
+                            <input type="radio" name="Q{{forloop.parentloop.counter}}" value="{{choice}}" id="Q{{forloop.parentloop.counter}}-{{forloop.counter}}">
+                            <label for="Q{{forloop.parentloop.counter}}-{{forloop.counter}}">{{choice}}</label>
+                        {% endfor %}
+                    {% elif question.type == "number_rating" %}
+                        <label>Q{{forloop.counter}}: {{question.text}}</label> 
+                        <input type="range" min="{{question.min}}" max="{{question.max}}">
+                    {% elif question.type == "email" %}
+                        <label>Q{{forloop.counter}}: {{question.text}}</label>
+                        <input type="email">      
+                    {% else %}
+                        <label>Q{{forloop.counter}}: {{question.text}}</label>
+                    {% endif %}
+                </section>
+            {% endfor %}
+        {% endif %}
+    </section>
+{% endfor %}
+</form>
