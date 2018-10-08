@@ -1,5 +1,6 @@
 """This file contains the url method definitions"""
 import json
+import string
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 
@@ -22,7 +23,7 @@ def survey_post_data(request):
         survey_stucture = json.loads(open(file_name+".json", "r").readlines())
         for i, question in enumerate(survey_stucture['questions'], 1):
             if postdata[survey_id+"-"+i] == "":
-                    list_entry += "NA"
+                list_entry += "NA"
 
             elif question['type'] == "scale":
                 if question['choices'].contains(postdata[survey_id+"-"+i]):
@@ -41,8 +42,8 @@ def survey_post_data(request):
                     break
 
             elif question['type'] == "text":
-                # TODO sanitize this input
-                list_entry += postdata[survey_id+"-"+i]
+                # TODO test this sanitization (for csv)
+                list_entry += '"' + postdata[survey_id+"-"+i].replace('"', '""') + '"'
 
             elif question['type'] == "number_rating":
                 number = postdata[survey_id+"-"+i]
@@ -53,8 +54,8 @@ def survey_post_data(request):
                     break
 
             elif question['type'] == "email":
-                # TODO sanitize this input
-                list_entry += postdata[survey_id+"-"+i]
+                # TODO test this sanitization (for csv)
+                list_entry += '"' + postdata[survey_id+"-"+i].replace('"', '""') + '"'
 
             else:
                 error = True
@@ -80,10 +81,10 @@ def survey_post_data(request):
                     else:
                         error = True
                         break
-                        
+
                 elif question['type'] == "text":
-                    # TODO sanitize this input
-                    list_entry += postdata[survey_id+"-"+i+"-"+j]
+                    # TODO test this sanitization (for csv)
+                    list_entry += '"' + postdata[survey_id+"-"+i+"-"+j].replace('"', '""') + '"'
 
                 elif subquestion['type'] == "number_rating":
                     number = postdata[survey_id+"-"+i+"-"+j]
@@ -94,8 +95,8 @@ def survey_post_data(request):
                         break
 
                 elif subquestion['type'] == "email":
-                    # TODO sanitize this input
-                    list_entry += postdata[survey_id+"-"+i+"-"+j]
+                    # TODO test this sanitization (for csv)
+                    list_entry += '"' + postdata[survey_id+"-"+i+"-"+j].replace('"', '""') + '"'
 
         if error:
             return HttpResponseRedirect("survey_error")
