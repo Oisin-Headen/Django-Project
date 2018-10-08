@@ -6,7 +6,6 @@ from . import views
 urlpatterns = [
     path('<int:question_id>', views.index, name='index'),
     path('', views.index, name='index'),
-    path('testjson/', views.testjson, name='testjson'),
     path('createsurvey/', views.createsurvey, name='createsurvey'),
     path('testpost/', views.testpost, name='testpost'),
     path('view/', views.view_survey, name='view_survey'),
