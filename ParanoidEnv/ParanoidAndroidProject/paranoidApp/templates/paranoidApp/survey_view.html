@@ -26,7 +26,7 @@
 
 <h2>{{survey.desc}}</h2>
 
-<form method="POST" action="{% url 'testpost' %}">
+<form method="POST" action="{% url 'survey_post_data' %}">
 {% csrf_token %}
 <input type="hidden" value="{{survey.id}}" name="survey-id">
 {% for question in survey.questions %}
