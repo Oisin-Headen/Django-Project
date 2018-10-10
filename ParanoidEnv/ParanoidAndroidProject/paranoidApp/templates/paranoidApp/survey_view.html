@@ -26,79 +26,82 @@
 
 <h2>{{survey.desc}}</h2>
 
-<form>
+<form method="POST" action="{% url 'survey_post_data' %}">
+{% csrf_token %}
+<input type="hidden" value="{{survey.id}}" name="survey-id">
 {% for question in survey.questions %}
     <section>
         {% if question.type == "text" %}
             <label>Q{{forloop.counter}}: {{question.text}}</label>
-            <textarea></textarea>
+            <textarea name="{{survey.id}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}></textarea>
         {% elif question.type == "single_answer_multiple_choice" %}
             <label>Q{{forloop.counter}}: {{question.text}}</label>
-            <select name="{{survey.name}}-{{forloop.counter}}">
+            <select name="{{survey.id}}-{{forloop.counter}}">
                 {% for choice in question.choices %}
                     <option>{{choice}}</option>
                 {% endfor %}
             </select>
         {% elif question.type == "boolean" %}
             <label>Q{{forloop.counter}}: {{question.text}}</label>
-            <input type="radio" name="Q{{forloop.counter}}" value="Yes" id="Q{{forloop.counter}}A1">
+            <input type="radio" name="{{survey.id}}-{{forloop.counter}}" value="Yes" id="Q{{forloop.counter}}A1" {% if question.optional == null %}required{% endif %}>
             <label for="Q2A1">Yes</label>
-            <input type="radio" name="Q{{forloop.counter}}" value="No" id="Q{{forloop.counter}}A2">
+            <input type="radio" name="{{survey.id}}-{{forloop.counter}}" value="No" id="Q{{forloop.counter}}A2" {% if question.optional == null %}required{% endif %}>
             <label for="Q2A2">No</label>
         {% elif question.type == "scale" %}
             <label>Q{{forloop.counter}}: {{question.text}}</label> 
             {% for choice in question.choices %}
-                <input type="radio" name="Q{{forloop.parentloop.counter}}" value="{{choice}}" id="Q{{forloop.parentloop.counter}}-{{forloop.counter}}">
+                <input type="radio" name="{{survey.id}}-{{forloop.parentloop.counter}}" value="{{choice}}" id="Q{{forloop.parentloop.counter}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}>
                 <label for="Q{{forloop.parentloop.counter}}-{{forloop.counter}}">{{choice}}</label>
             {% endfor %}
         {% elif question.type == "number_rating" %}
             <label>Q{{forloop.counter}}: {{question.text}}</label> 
-            <input type="range" min="{{question.min}}" max="{{question.max}}">
+            <input type="range" min="{{question.min}}" max="{{question.max}}" name="{{survey.id}}-{{forloop.counter}}">
         {% elif question.type == "email" %}
             <label>Q{{forloop.counter}}: {{question.text}}</label>
-            <input type="email">      
+            <input type="email" name="{{survey.id}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}>      
         {% else %}
-            <label>Q{{forloop.counter}}: {{question.text}}</label>
+            <label>Error: could not display Q{{forloop.counter}}: {{question.text}}</label>
         {% endif %}
 
 
         {% if question.subquestions != null %}
             {% for subquestion in question.subquestions %}
-                <section>
-                    {% if question.type == "text" %}
-                        <label>Q{{forloop.counter}}: {{question.text}}</label>
-                        <textarea></textarea>
-                    {% elif question.type == "single_answer_multiple_choice" %}
-                        <label>Q{{forloop.counter}}: {{question.text}}</label>
-                        <select name="{{survey.name}}-{{forloop.counter}}">
-                            {% for choice in question.choices %}
+                <div>
+                    {% if subquestion.type == "text" %}
+                        <label>Q{{forloop.parentloop.counter}}.{{forloop.counter}}: {{subquestion.text}}</label>
+                        <textarea name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}"></textarea>
+                    {% elif subquestion.type == "single_answer_multiple_choice" %}
+                        <label>Q{{forloop.parentloop.counter}}.{{forloop.counter}}: {{subquestion.text}}</label>
+                        <select name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}">
+                            {% for choice in subquestion.choices %}
                                 <option>{{choice}}</option>
                             {% endfor %}
                         </select>
-                    {% elif question.type == "boolean" %}
-                        <label>Q{{forloop.counter}}: {{question.text}}</label>
-                        <input type="radio" name="Q{{forloop.counter}}" value="Yes" id="Q{{forloop.counter}}A1">
+                    {% elif subquestion.type == "boolean" %}
+                        <label>Q{{forloop.parentloop.counter}}.{{forloop.counter}}: {{subquestion.text}}</label>
+                        <input type="radio" name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}" value="Yes" id="Q{{forloop.counter}}A1">
                         <label for="Q2A1">Yes</label>
-                        <input type="radio" name="Q{{forloop.counter}}" value="No" id="Q{{forloop.counter}}A2">
+                        <input type="radio" name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}" value="No" id="Q{{forloop.counter}}A2">
                         <label for="Q2A2">No</label>
-                    {% elif question.type == "scale" %}
-                        <label>Q{{forloop.counter}}: {{question.text}}</label> 
+                    {% elif subquestion.type == "scale" %}
+                        <label>Q{{forloop.parentloop.counter}}.{{forloop.counter}}: {{subquestion.text}}</label> 
                         {% for choice in question.choices %}
-                            <input type="radio" name="Q{{forloop.parentloop.counter}}" value="{{choice}}" id="Q{{forloop.parentloop.counter}}-{{forloop.counter}}">
+                            <input type="radio" name="{{survey.id}}-{{forloop.parentloop.parentloop.counter}}-{{forloop.parentloop.counter}}" value="{{choice}}" id="Q{{forloop.parentloop.counter}}-{{forloop.counter}}">
                             <label for="Q{{forloop.parentloop.counter}}-{{forloop.counter}}">{{choice}}</label>
                         {% endfor %}
-                    {% elif question.type == "number_rating" %}
-                        <label>Q{{forloop.counter}}: {{question.text}}</label> 
-                        <input type="range" min="{{question.min}}" max="{{question.max}}">
-                    {% elif question.type == "email" %}
-                        <label>Q{{forloop.counter}}: {{question.text}}</label>
-                        <input type="email">      
+                    {% elif subquestion.type == "number_rating" %}
+                        <label>Q{{forloop.parentloop.counter}}.{{forloop.counter}}: {{subquestion.text}}</label> 
+                        <input type="range" min="{{subquestion.min}}" max="{{subquestion.max}}" name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}">
+                    {% elif subquestion.type == "email" %}
+                        <label>Q{{forloop.parentloop.counter}}.{{forloop.counter}}: {{subquestion.text}}</label>
+                        <input type="email" name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}">      
                     {% else %}
-                        <label>Q{{forloop.counter}}: {{question.text}}</label>
+                        <label>Q{{forloop.parentloop.counter}}.{{forloop.counter}}: {{subquestion.text}}</label>
                     {% endif %}
-                </section>
+                </div>
             {% endfor %}
         {% endif %}
     </section>
 {% endfor %}
+<input type="submit">
 </form>
