@@ -5,17 +5,20 @@
     }
 </style>
 
-<form action="{% url 'post_create_survey' %}" method="POST">
+
+<form action="{% url 'create_survey_start' %}" method="POST">
     {% csrf_token %}
     <div>
         <label for="survey-name">Survey name</label>
-        <input type="text" name="survey-name" required>
+        <input type="text" name="name" required>
     </div>
     <div>
         <label for="survey-desc">Survey Description</label>
-        <textarea required name="survey-desc"></textarea>
+        <textarea required name="desc"></textarea>
     </div>
-
+    <div>
+        <input type="number" name="number_of_questions">
+    </div>
     <input type="submit" name="submitname" id ="submitid">
 </form>
 

@@ -7,14 +7,35 @@ from django.template import loader
 from django.urls import reverse
 from .models import Survey
 
+question_types = [
+    "text",
+    "single_answer_multiple_choice",
+    "boolean",
+    "scale",
+    "number_rating",
+    "email"
+]
+
 def index(request):
     """The Index Page"""
     all_surveys = Survey.objects.all()
     surveys = []
     for survey in all_surveys:
         surveys.append({"id": survey.pk, "name": survey.survey_name})
-    return HttpResponse(loader.get_template("paranoidApp/index.html").render({"surveys":surveys}, request))
+    return HttpResponse(loader.get_template(
+        "paranoidApp/index.html").render({"surveys":surveys}, request))
 
+def view_survey(request):
+    """View and respond to a survey.
+    Currently only views the hard-coded sample survey"""
+    file = open("data/surveydata.json", "r")
+    json_data = json.loads(file.read())
+    json_data['id'] = 1
+    survey_data = {"survey":json_data}
+    return HttpResponse(loader.get_template("paranoidApp/survey_view.html")
+                        .render(survey_data, request))
+
+# TODO Split up this function, currently spaghetti code
 def survey_post_data(request):
     """Take the posted data, validate, and store it"""
     try:
@@ -136,7 +157,6 @@ def survey_post_data(request):
         return HttpResponseRedirect(reverse("error"))
 
 
-
 def error(request):
     """An error occured somewhere"""
     return HttpResponse(loader.get_template("paranoidApp/error.html").render({}, request))
@@ -147,17 +167,55 @@ def survey_complete(request):
     print(dataframe.describe())
     return HttpResponse(loader.get_template("paranoidApp/survey_complete.html").render({}, request))
 
-def createsurvey(request):
-    """Testing post currently"""
-    return HttpResponse(loader.get_template("paranoidApp/survey_creation_form.html")
+
+
+def create_survey_start(request):
+    """Sends back the survey title, description, and the number of questions in the survey"""
+    return HttpResponse(loader.get_template("paranoidApp/survey_creation_num_questions.html")
                         .render({}, request))
 
-def post_create_survey(request):
+def post_create_survey_start(request):
     """The survey creation form posts here"""
     postdata = request.POST
-    new_survey = Survey(survey_name=postdata['survey-name'], survey_desc=postdata['survey-desc'])
-    new_survey.save()
-    return HttpResponseRedirect(reverse("survey_created", kwargs={"survey_id": new_survey.pk}))
+    new_survey = {
+        'name': postdata['name'],
+        'desc': postdata['desc']
+    }
+    request.session['new_survey'] = new_survey
+    request.session['new_survey_num_questions'] = postdata['number_of_questions']
+    return HttpResponseRedirect(reverse('create_survey_question_types'))
+
+def create_survey_question_types(request):
+    """Allow the user to choose a question type per question"""
+    data = {
+        "survey_name": request.session['new_survey']['name'],
+        "number_questions": range(1, int(request.session['new_survey_num_questions']))
+    }
+    return HttpResponse(loader.get_template("paranoidApp/survey_creation_question_types.html")
+                        .render(data, request))
+
+def post_create_survey_question_types(request):
+    """Process the user's question type choices"""
+    request.session['new_survey']['questions'] = []
+    for i in range(1, int(request.session['new_survey_num_questions'])):
+        if request.POST['Q'+str(i)] in question_types:
+            question = {
+                "type": request.POST['Q'+str(i)]
+            }
+            request.session['new_survey']['questions'].append(question)
+        else:
+            # TODO Throw an error!
+            pass
+    return HttpResponseRedirect(reverse('create_survey_question_options'))
+
+def create_survey_question_options(request):
+    """Allow the user to customize the questions"""
+    return HttpResponse(loader.get_template("paranoidApp/survey_creation_question_options.html")
+                        .render({}, request))
+
+def create_survey_question_options_post(request):
+    """Finalize survey"""
+
 
 def survey_created(request, survey_id):
     """Survey has been created"""
@@ -165,15 +223,6 @@ def survey_created(request, survey_id):
     return HttpResponse(loader.get_template("paranoidApp/survey_created.html").render({"surveyname":survey.survey_name, "surveydesc": survey.survey_desc}, request))
 
 
-def view_survey(request):
-    """View and respond to a survey.
-    Currently only views the hard-coded sample survey"""
-    file = open("data/surveydata.json", "r")
-    json_data = json.loads(file.read())
-    json_data['id'] = 1
-    survey_data = {"survey":json_data}
-    return HttpResponse(loader.get_template("paranoidApp/survey_view.html")
-                        .render(survey_data, request))
 
 # Survey creation
 # Post data comes in,

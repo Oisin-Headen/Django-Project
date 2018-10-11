@@ -4,14 +4,20 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('<int:question_id>', views.index, name='index'),
     path('', views.index, name='index'),
-    path('create-survey/', views.createsurvey, name='createsurvey'),
     path('view/', views.view_survey, name='view_survey'),
     path('error/', views.error, name='error'),
-    path('survey-complete/', views.survey_complete, name='survey_complete'),
-    path('post-survey/', views.survey_post_data, name='survey_post_data'),
-
-    path('post-create-survey/', views.post_create_survey, name="post_create_survey"),
-    path('survey-created/<int:survey_id>/', views.survey_created, name="survey_created")
+    path('view/results', views.survey_complete, name='survey_complete'),
+    path('view/response', views.survey_post_data, name='survey_post_data'),
+    path('create-survey/', views.create_survey_start, name='create_survey'),
+    path('create-survey/post/', views.post_create_survey_start, name='create_survey_start'),
+    path('create-survey/question-types/', views.create_survey_question_types,
+         name='create_survey_question_types'),
+    path('create-survey/question-types/post', views.post_create_survey_question_types,
+         name='post_create_survey_question_types'),
+    path('create-survey/question-types/question-options/', views.create_survey_question_options,
+         name='create_survey_question_options'),
+    path('create-survey/question-types/question-options/post',
+         views.create_survey_question_options_post, name='create_survey_question_options_post'),
+    path('survey-created/<int:survey_id>/', views.survey_created, name='survey_created')
 ]

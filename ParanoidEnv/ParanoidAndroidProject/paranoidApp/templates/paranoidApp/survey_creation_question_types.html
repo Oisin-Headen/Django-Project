@@ -1,0 +1,26 @@
+<style>
+    div
+    {
+        border: 2px solid black;
+        padding: 10px;
+    }
+</style>
+
+<h1>Creating Survey: {{survey_name}}</h1>
+<form method="POST" action="{% url 'post_create_survey_question_types' %}">
+{% for question_number in number_questions %}
+{% csrf_token %}
+    <div>
+        <p>Q{{question_number}}</p>
+        <select name="Q{{question_number}}">
+            <option value="text">Text</option>
+            <option value="single_answer_multiple_choice">Dropdown</option>
+            <option value="boolean">Yes or No</option>
+            <option value="scale">Radio Buttons</option>
+            <option value="number_rating">Numerical</option>
+            <option value="email">Email</option>
+        </select>
+    </div>
+{% endfor %}
+<input type="submit">
+</form>
