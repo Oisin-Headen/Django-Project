@@ -5,5 +5,5 @@ from django.db import models
 
 class Survey(models.Model):
     """Model for the surveys"""
-    survey_location = models.CharField(max_length=200)
-    answers_location = models.CharField(max_length=200)
+    survey_name = models.CharField(max_length=200)
+    survey_desc = models.CharField(max_length=500)

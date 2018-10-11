@@ -1,7 +1,28 @@
-<form action="{% url 'testpost' %}" method="POST">
+<style>
+    input, textarea
+    {
+        margin-top: 20px;
+    }
+</style>
+
+<form action="{% url 'post_create_survey' %}" method="POST">
     {% csrf_token %}
-    <input type="text" name="text-1-name" id="text-1-id">
+    <div>
+        <label for="survey-name">Survey name</label>
+        <input type="text" name="survey-name" required>
+    </div>
+    <div>
+        <label for="survey-desc">Survey Description</label>
+        <textarea required name="survey-desc"></textarea>
+    </div>
+
     <input type="submit" name="submitname" id ="submitid">
-    <input type="text" name="text-2-name">
-    <input type="text" name="text-3-name">
 </form>
+
+<!-- 
+    Process for creation:
+        Get Survey Title and Description
+        allow the user to add questions
+            allow user to choose question type, name, text, and other values
+        post data
+ -->

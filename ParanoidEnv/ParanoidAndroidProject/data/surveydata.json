@@ -5,6 +5,7 @@
         {
             "type": "single_answer_multiple_choice",
             "text": "Which village cinema did you last visit to watch a movie?",
+            "column-name": "Cinema",
             "choices": [
                 "Airport West", "Albury", "Bendigo", "Century City", "Coburg Drive-In", "Crown", 
                 "Doncaster", "Eastlands", "Fountain Gate", "Geelong", "Glenorchy", "Hobart", "Jam Factory", 
@@ -14,11 +15,13 @@
         },
         {
             "type": "boolean",
-            "text": "Is this the regular Village cinema which you attend?"
+            "text": "Is this the regular Village cinema which you attend?",
+            "column-name": "Regular-Cimema"
         },
         {
             "type": "single_answer_multiple_choice",
             "text": "Which day of the week did you attend the Village cinema on your last visit?",
+            "column-name": "Regular-Day",
             "choices": [
                 "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
             ]
@@ -26,6 +29,7 @@
         {
             "type": "scale",
             "text": "How convenient were the available session times for the movie you watched?",
+            "column-name": "How-Convenient",
             "choices": [
                 "Very Inconvenient", "Inconvient", "Indifferent", "Convenient", "Very Convenient"
             ]
@@ -33,6 +37,7 @@
         {
             "type": "scale",
             "text": "Approximately how long did it take for you to reach the cinema from home on your last visit?",
+            "column-name": "Travel-time",
             "choices": [
                 "Less than 10 minutes", "Less than 30 minutes", "Less than 1 hour", "More than 1 hour"
             ]
@@ -40,47 +45,55 @@
         {
             "type": "scale",
             "text": "Including your most recent visit, how frequently have you been to the movies in the past 3 months?",
+            "column-name": "Frequency",
             "choices": [
                 "Once", "2-3 times", "4-6 times", "More than 6 times"
             ]
         },
         {
             "type": "boolean",
-            "text": "Was the session you last attended a Gold Class screen?"
+            "text": "Was the session you last attended a Gold Class screen?",
+            "column-name": "Gold-Class"
         },
         {
             "type": "number_rating",
             "text": "How would you rate the overall cleanliness of the cinema?",
             "max": 10,
-            "min": 0
+            "min": 0,
+            "column-name": "Cleanliness"
         },
         {
             "type": "number_rating",
             "text": "How would you rate the size of the screen in your last movie session?",
             "max": 10,
-            "min": 0
+            "min": 0,
+            "column-name": "Screen-Size"
         },
         {
             "type": "number_rating",
             "text": "How would you rate the picture quality of the screen in your last movie session?",
             "max": 10,
-            "min": 0
+            "min": 0,
+            "column-name": "Picture-Quality"
         },
         {
             "type": "number_rating",
             "text": "How would you rate the quality of the sound for the cinema you were in?",
             "max": 10,
-            "min": 0
+            "min": 0,
+            "column-name": "Sound-Quality"
         },
         {
             "type": "number_rating",
             "text": "How would you rate the comfort and size of your seat for the cinema you were in?",
             "max": 10,
-            "min": 0
+            "min": 0,
+            "column-name": "Seat-Comfort"
         },
         {
             "type": "scale",
             "text": "How would you rate temperature in the cinema you were in?",
+            "column-name": "Temperature",
             "choices": [
                 "Way too cold", "A little cool", "Just right", "A little warm", "Way too hot"
             ]
@@ -88,6 +101,7 @@
         {
             "type": "scale",
             "text": "Staffing levels were adequate with reasonable wait times",
+            "column-name": "Good-Staffing",
             "choices": [
                 "Strongly disagree", "Disagree", "Neither agree nor disagree", "Agree", "Strongly agree"
             ]
@@ -96,40 +110,47 @@
             "type": "number_rating",
             "text": "How would you rate the friendliness of our staff?",
             "max": 10,
-            "min": 0
+            "min": 0,
+            "column-name": "Staff-Friendliness"
         },
         {
             "type": "number_rating",
             "text": "How would you rate the cleanliness of the amenities, such as bathrooms?",
             "max": 10,
-            "min": 0
+            "min": 0,
+            "column-name": "Cleanliness-Amenities"
         },
         {
             "type": "boolean",
-            "text": "Are you a Vrewards member?"
+            "text": "Are you a Vrewards member?",
+            "column-name": "Vrewards-Member"
         },
         {
             "type": "boolean",
             "text": "Did you purchase any food or drinks from our Snack Bar or Gold Class menu?",
             "on": true,
+            "column-name": "Purchase-Refreshments",
             "subquestions": [
                 {
                     "type": "number_rating",
                     "text": "How would you rate the overall selection of our food?",
                     "max": 10,
-                    "min": 0
+                    "min": 0,
+                    "column-name": "Selection-Food"
                 },
                 {
                     "type": "number_rating",
                     "text": "How would you rate the quality of our food?",
                     "max": 10,
-                    "min": 0
+                    "min": 0,
+                    "column-name": "Food-Quality"
                 },
                 {
                     "type": "number_rating",
                     "text": "How would you rate the price of our food?",
                     "max": 10,
-                    "min": 0
+                    "min": 0,
+                    "column-name": "Food-Price"
                 }
             ]
         },
@@ -137,24 +158,29 @@
             "type": "number_rating",
             "text": "Based on your last experience, how likely would you recommend the Village cinema you visited to a friend or colleague?",
             "max": 10,
-            "min": 0
+            "min": 0,
+            "column-name": "Recommend-Level"
         },
         {
             "type": "boolean",
-            "text": "Have you ever received or would you gift someone a movie experience?"
+            "text": "Have you ever received or would you gift someone a movie experience?",
+            "column-name": "Purchased-Gift"
         },
         {
             "type": "boolean",
             "text": "Would you like to receive news and special offers from Village?",
             "on": "true",
+            "column-name": "Email-List",
             "subquestions": [
                 {
                     "type": "text",
-                    "text": "What is your name?"
+                    "text": "What is your name?",
+                    "column-name": "Name"
                 },
                 {
                     "type": "email",
-                    "text": "What is your email address?"
+                    "text": "What is your email address?",
+                    "column-name": "Email-Address"
                 }
             ]
         }

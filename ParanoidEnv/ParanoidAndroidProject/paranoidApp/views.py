@@ -1,6 +1,6 @@
 """This file contains the url method definitions"""
 import json
-import pdb
+import pandas
 # import string
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
@@ -24,7 +24,7 @@ def survey_post_data(request):
         # pdb.set_trace()
         for i, question in enumerate(survey_stucture['questions'], 1):
             if postdata[str(survey_id)+"-"+str(i)] == "":
-                list_entry += "NA"
+                list_entry += "NaN"
 
             elif question['type'] == "single_answer_multiple_choice":
                 if postdata[str(survey_id)+"-"+str(i)] in question['choices']:
@@ -78,8 +78,8 @@ def survey_post_data(request):
 
             for j, subquestion in enumerate(subquestions, 1):
                 if postdata[str(survey_id)+"-"+str(i)+"-"+str(j)] == "":
-                    list_entry += "NA"
-                
+                    list_entry += "NaN"
+
                 elif subquestion['type'] == "scale":
                     if postdata[str(survey_id)+"-"+str(i)+"-"+str(j)] in subquestion['choices']:
                         list_entry += postdata[str(survey_id)+"-"+str(i)+"-"+str(j)]
@@ -115,7 +115,7 @@ def survey_post_data(request):
                 else:
                     error_occured = True
                     break
-                
+
                 if i != len(survey_stucture['questions']) or j != len(question['subquestions']):
                     list_entry += ","
 
@@ -130,28 +130,33 @@ def survey_post_data(request):
     except KeyError:
         return HttpResponseRedirect(reverse("error"))
 
+
+
 def error(request):
     """An error occured somewhere"""
     return HttpResponse(loader.get_template("paranoidApp/error.html").render({}, request))
 
 def survey_complete(request):
     """The survey was completed succsessfully"""
+    dataframe = pandas.read_csv('data/surveydata.csv')
+    print(dataframe.describe())
     return HttpResponse(loader.get_template("paranoidApp/survey_complete.html").render({}, request))
-
-def testpost(request):
-    """Testing post data"""
-    try:
-        postdata = request.POST
-    except KeyError:
-        pass
-    else:
-        return HttpResponse(loader.get_template("paranoidApp/survey_complete.html")
-                            .render({"text":postdata}, request))
 
 def createsurvey(request):
     """Testing post currently"""
     return HttpResponse(loader.get_template("paranoidApp/survey_creation_form.html")
                         .render({}, request))
+
+def post_create_survey(request):
+    """The survey creation form posts here"""
+    postdata = request.POST
+
+    return HttpResponseRedirect(reverse("survey_created"))
+
+def survey_created(request):
+    """Survey has been created"""
+    return HttpResponse(loader.get_template("paranoidApp/survey_created.html").render({}, request))
+
 
 def view_survey(request):
     """View and respond to a survey.
