@@ -12,6 +12,6 @@ urlpatterns = [
     path('survey-complete/', views.survey_complete, name='survey_complete'),
     path('post-survey/', views.survey_post_data, name='survey_post_data'),
 
-    path('post-create-survey', views.post_create_survey, name="post_create_survey"),
-    path('survey-created', views.survey_created, name="survey_created")
+    path('post-create-survey/', views.post_create_survey, name="post_create_survey"),
+    path('survey-created/<int:survey_id>/', views.survey_created, name="survey_created")
 ]

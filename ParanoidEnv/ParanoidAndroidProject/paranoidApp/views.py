@@ -5,10 +5,15 @@ import pandas
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
+from .models import Survey
 
 def index(request):
     """The Index Page"""
-    return HttpResponse(loader.get_template("paranoidApp/index.html").render({}, request))
+    all_surveys = Survey.objects.all()
+    surveys = []
+    for survey in all_surveys:
+        surveys.append({"id": survey.pk, "name": survey.survey_name})
+    return HttpResponse(loader.get_template("paranoidApp/index.html").render({"surveys":surveys}, request))
 
 def survey_post_data(request):
     """Take the posted data, validate, and store it"""
@@ -150,12 +155,14 @@ def createsurvey(request):
 def post_create_survey(request):
     """The survey creation form posts here"""
     postdata = request.POST
+    new_survey = Survey(survey_name=postdata['survey-name'], survey_desc=postdata['survey-desc'])
+    new_survey.save()
+    return HttpResponseRedirect(reverse("survey_created", kwargs={"survey_id": new_survey.pk}))
 
-    return HttpResponseRedirect(reverse("survey_created"))
-
-def survey_created(request):
+def survey_created(request, survey_id):
     """Survey has been created"""
-    return HttpResponse(loader.get_template("paranoidApp/survey_created.html").render({}, request))
+    survey = Survey.objects.get(pk=survey_id)
+    return HttpResponse(loader.get_template("paranoidApp/survey_created.html").render({"surveyname":survey.survey_name, "surveydesc": survey.survey_desc}, request))
 
 
 def view_survey(request):
