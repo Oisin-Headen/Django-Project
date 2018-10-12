@@ -14,12 +14,12 @@
     <div>
         <h3>{{question.type_name}} Question</h3>
         <div>
-            <label for="Q{{forloop.counter}}-title">Question Title:</label>
-            <input required type="text" name="Q{{forloop.counter}}-title">
+                <label for="Q{{forloop.counter}}-text">Question Text:</label>
+                <textarea required name="Q{{forloop.counter}}-text"></textarea>
         </div>
         <div>
-            <label for="Q{{forloop.counter}}-text">Question Text:</label>
-            <textarea required name="Q{{forloop.counter}}-text"></textarea>
+            <label for="Q{{forloop.counter}}-title">Question Title:</label>
+            <input required type="text" name="Q{{forloop.counter}}-title">
         </div>
         {% if question.type == "text" %}
             

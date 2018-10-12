@@ -5,6 +5,7 @@ import pandas
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from .models import Survey
 
 QUESTION_TYPES = {
@@ -25,12 +26,16 @@ def index(request):
     return HttpResponse(loader.get_template(
         "paranoidApp/index.html").render({"surveys":surveys}, request))
 
-def view_survey(request):
+def view_survey(request, survey_id=-1):
     """View and respond to a survey.
     Currently only views the hard-coded sample survey"""
-    file = open("data/surveydata.json", "r")
+    if survey_id == -1:
+        file = open("data/surveydata.json", "r")
+    else:
+        survey = get_object_or_404(Survey, pk=survey_id)
+        file = open("data/survey" + str(survey.pk) + ".json", "r")
     json_data = json.loads(file.read())
-    json_data['id'] = 1
+    json_data['id'] = survey_id
     survey_data = {"survey":json_data}
     return HttpResponse(loader.get_template("paranoidApp/survey_view.html")
                         .render(survey_data, request))
@@ -42,12 +47,16 @@ def survey_post_data(request):
         postdata = request.POST
         survey_id = postdata['survey-id']
         # TODO get data filename from id
-        survey_file = "data/surveydata.json"
-        answers_file = "data/surveydata.csv"
+        if survey_id == -1:
+            survey_file = "data/surveydata.json"
+            answers_file = "data/surveydata.csv"
+        else:
+            survey_file = "data/survey" + str(survey_id) + ".json"
+            answers_file = "data/survey" + str(survey_id) + ".csv"
         list_entry = "\n"
         error_occured = False
         survey_stucture = json.loads(open(survey_file, "r").read())
-        # pdb.set_trace()
+
         for i, question in enumerate(survey_stucture['questions'], 1):
             if postdata[str(survey_id)+"-"+str(i)] == "":
                 list_entry += "NaN"
@@ -57,6 +66,7 @@ def survey_post_data(request):
                     list_entry += postdata[str(survey_id)+"-"+str(i)]
                 else:
                     error_occured = True
+                    print("single_answer_multiple_choice error")
                     break
 
             elif question['type'] == "scale":
@@ -64,6 +74,7 @@ def survey_post_data(request):
                     list_entry += postdata[str(survey_id)+"-"+str(i)]
                 else:
                     error_occured = True
+                    print("scale error")
                     break
 
             elif question['type'] == "boolean":
@@ -73,6 +84,7 @@ def survey_post_data(request):
                     list_entry += "No"
                 else:
                     error_occured = True
+                    print("boolean error")
                     break
 
             elif question['type'] == "text":
@@ -85,6 +97,7 @@ def survey_post_data(request):
                     list_entry += str(number)
                 else:
                     error_occured = True
+                    print("number_rating error")
                     break
 
             elif question['type'] == "email":
@@ -230,8 +243,8 @@ def create_survey_question_options_post(request):
     """Finalize survey"""
     try:
         for i, question in enumerate(request.session['new_survey']['questions'], 1):
-            question['column-name']=request.POST['Q'+str(i)+'-title']
-            question['text']=request.POST['Q'+str(i)+'-text']
+            question['column-name'] = request.POST['Q'+str(i)+'-title']
+            question['text'] = request.POST['Q'+str(i)+'-text']
             if question['type'] == "scale" or question['type'] == "single_answer_multiple_choice":
                 choices = [
                     request.POST['Q'+str(i)+"-choice1"],
@@ -240,8 +253,8 @@ def create_survey_question_options_post(request):
                 ]
                 question['choices'] = choices
             elif question['type'] == "number_rating":
-                question['max'] = request.POST['Q'+str(i)+"-max"]
-                question['min'] = request.POST['Q'+str(i)+"-min"]
+                question['max'] = int(request.POST['Q'+str(i)+"-max"])
+                question['min'] = int(request.POST['Q'+str(i)+"-min"])
     except KeyError:
         return HttpResponseRedirect(reverse("error"))
 
@@ -263,7 +276,7 @@ def create_survey_question_options_post(request):
     csv_header = ""
     for question in request.session['new_survey']['questions']:
         csv_header += ('"'+question['column-name'].replace('"', '""')+'",')
-        if question['subquestions']:
+        if 'subquestions' in question.keys():
             for subquestion in question['subquestions']:
                 csv_header += ('"'+subquestion['column-name'].replace('"', '""')+'",')
     answers_file_writing.write(csv_header)
@@ -280,4 +293,3 @@ def survey_created(request, survey_id):
     return HttpResponse(loader.get_template("paranoidApp/survey_created.html")
                         .render({"surveyname":survey.survey_name, 
                                 "surveydesc": survey.survey_desc}, request))
-
