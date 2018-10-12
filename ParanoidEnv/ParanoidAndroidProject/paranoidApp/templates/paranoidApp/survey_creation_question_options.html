@@ -1,1 +1,53 @@
-<h1>Not implemented</h1>
+<style>
+    div
+    {
+        border: 2px solid black;
+        padding: 10px;
+    }
+</style>
+
+<h1>Creating Survey: {{name}}</h1>
+
+<form method="POST" action="{% url 'create_survey_question_options_post' %}">
+{% csrf_token %}
+{% for question in questions %}
+    <div>
+        <h3>{{question.type_name}} Question</h3>
+        <div>
+            <label for="Q{{forloop.counter}}-title">Question Title:</label>
+            <input required type="text" name="Q{{forloop.counter}}-title">
+        </div>
+        <div>
+            <label for="Q{{forloop.counter}}-text">Question Text:</label>
+            <textarea required name="Q{{forloop.counter}}-text"></textarea>
+        </div>
+        {% if question.type == "text" %}
+            
+        {% elif question.type == "single_answer_multiple_choice" or question.type == "scale" %}
+            <!-- Currently set to three choices -->
+            <div>
+                <h3>Currently must have three choices, will change when we implement jQuery/javascript</h3>
+                <label for="Q{{forloop.counter}}-choice1">Choice 1</label>
+                <input required type="text" name="Q{{forloop.counter}}-choice1">
+
+                <label for="Q{{forloop.counter}}-choice2">Choice 2</label>
+                <input required type="text" name="Q{{forloop.counter}}-choice2">
+
+                <label for="Q{{forloop.counter}}-choice3">Choice 3</label>
+                <input required type="text" name="Q{{forloop.counter}}-choice3">
+            </div>
+        {% elif question.type == "number_rating" %}
+            <div>
+                <label for="Q{{forloop.counter}}-max">Maximum Number</label>
+                <input required type="number" name="Q{{forloop.counter}}-max">
+            </div>
+            <div>
+                <label for="Q{{forloop.counter}}-min">Minimum Number</label>
+                <input required type="number" name="Q{{forloop.counter}}-min">
+            </div>
+        {% endif %}
+        <!-- Nothing extra for bool and email yet -->
+    </div>
+{% endfor %}
+<input type="submit">
+</form>
