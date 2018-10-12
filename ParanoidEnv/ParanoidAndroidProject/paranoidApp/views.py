@@ -260,8 +260,13 @@ def create_survey_question_options_post(request):
     survey_file_writing.close()
 
     answers_file_writing = open(answers_file, "w+")
-    # TODO write csv header
-    # answers_file_writing.write()
+    csv_header = ""
+    for question in request.session['new_survey']['questions']:
+        csv_header += ('"'+question['column-name'].replace('"', '""')+'",')
+        if question['subquestions']:
+            for subquestion in question['subquestions']:
+                csv_header += ('"'+subquestion['column-name'].replace('"', '""')+'",')
+    answers_file_writing.write(csv_header)
     answers_file_writing.close()
 
     # del request.session['new_survey']
