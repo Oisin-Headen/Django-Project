@@ -46,7 +46,7 @@ def survey_post_data(request):
     try:
         postdata = request.POST
         survey_id = postdata['survey-id']
-        # TODO get data filename from id
+        # TODO possibly remove this test survey?
         if int(survey_id) == -1:
             survey_file = "data/surveydata.json"
             answers_file = "data/surveydata.csv"
@@ -88,7 +88,6 @@ def survey_post_data(request):
                     break
 
             elif question['type'] == "text":
-                # TODO test this sanitization (for csv)
                 list_entry += '"' + postdata[str(survey_id)+"-"+str(i)].replace('"', '""') + '"'
 
             elif question['type'] == "number_rating":
@@ -101,7 +100,6 @@ def survey_post_data(request):
                     break
 
             elif question['type'] == "email":
-                # TODO test this sanitization (for csv)
                 list_entry += '"' + postdata[str(survey_id)+"-"+str(i)].replace('"', '""') + '"'
 
             else:
@@ -147,7 +145,6 @@ def survey_post_data(request):
                         break
 
                 elif subquestion['type'] == "text":
-                    # TODO test this sanitization (for csv)
                     list_entry += '"' + postdata[str(survey_id)+"-"+str(i)+"-"+str(j)].replace('"', '""') + '"'
 
                 elif subquestion['type'] == "number_rating":
@@ -159,7 +156,6 @@ def survey_post_data(request):
                         break
 
                 elif subquestion['type'] == "email":
-                    # TODO test this sanitization (for csv)
                     list_entry += '"' + postdata[str(survey_id)+"-"+str(i)+"-"+str(j)].replace('"', '""') + '"'
 
                 else:
