@@ -1,6 +1,6 @@
 """This file contains the url method definitions"""
 import json
-import pandas
+# import pandas
 # import string
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
@@ -47,7 +47,7 @@ def survey_post_data(request):
         postdata = request.POST
         survey_id = postdata['survey-id']
         # TODO get data filename from id
-        if survey_id == -1:
+        if int(survey_id) == -1:
             survey_file = "data/surveydata.json"
             answers_file = "data/surveydata.csv"
         else:
@@ -59,7 +59,7 @@ def survey_post_data(request):
 
         for i, question in enumerate(survey_stucture['questions'], 1):
             if postdata[str(survey_id)+"-"+str(i)] == "":
-                list_entry += "NaN"
+                list_entry += "NA"
 
             elif question['type'] == "single_answer_multiple_choice":
                 if postdata[str(survey_id)+"-"+str(i)] in question['choices']:
@@ -117,9 +117,20 @@ def survey_post_data(request):
 
             for j, subquestion in enumerate(subquestions, 1):
                 if postdata[str(survey_id)+"-"+str(i)+"-"+str(j)] == "":
-                    list_entry += "NaN"
+                    list_entry += "NA"
+                    if i != len(survey_stucture['questions']) or j != len(question['subquestions']):
+                        list_entry += ","
+                    continue
 
-                elif subquestion['type'] == "scale":
+                if question['on']:
+                    if (postdata[str(survey_id)+"-"+str(i)] == "Yes" and question['on'] is False
+                       ) or (postdata[str(survey_id)+"-"+str(i)] == "No" and question['on'] is True):
+                        list_entry += "NA"
+                        if i != len(survey_stucture['questions']) or j != len(question['subquestions']):
+                            list_entry += ","
+                        continue
+
+                if subquestion['type'] == "scale":
                     if postdata[str(survey_id)+"-"+str(i)+"-"+str(j)] in subquestion['choices']:
                         list_entry += postdata[str(survey_id)+"-"+str(i)+"-"+str(j)]
                     else:
@@ -176,8 +187,8 @@ def error(request):
 
 def survey_complete(request):
     """The survey was completed succsessfully"""
-    dataframe = pandas.read_csv('data/surveydata.csv')
-    print(dataframe.describe())
+    # dataframe = pandas.read_csv('data/surveydata.csv')
+    # print(dataframe.describe())
     return HttpResponse(loader.get_template("paranoidApp/survey_complete.html").render({}, request))
 
 

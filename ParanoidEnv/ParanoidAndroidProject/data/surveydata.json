@@ -169,7 +169,7 @@
         {
             "type": "boolean",
             "text": "Would you like to receive news and special offers from Village?",
-            "on": "true",
+            "on": true,
             "column-name": "Email-List",
             "subquestions": [
                 {
