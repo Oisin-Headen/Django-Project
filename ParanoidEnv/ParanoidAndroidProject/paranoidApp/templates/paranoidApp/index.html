@@ -6,7 +6,7 @@
 <p><a href="{% url 'view_survey' %}">View survey</a></p>
 <p><a href="{% url 'create_survey' %}">Suvey Creation page</a></p>
 
-
+<p><a href="{% url 'create_survey_single' %}">Suvey Creation, Single Page</a></p>
 
 {% for survey in surveys %}
     <h1><a href="{% url 'survey_created' survey_id=survey.id %}">{{survey.name}}</a></h1>

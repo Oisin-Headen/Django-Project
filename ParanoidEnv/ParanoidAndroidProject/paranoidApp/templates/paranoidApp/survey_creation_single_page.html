@@ -1,0 +1,72 @@
+{% load static %}
+<html>
+
+<head>
+    <style>
+        textarea{
+            vertical-align: top;
+        }
+        #add-question, #questions div{
+            border: 2px solid black;
+            margin-top: 5px;
+            padding: 10px;
+        }
+
+        #questions .question div{
+            border: none;
+            padding: 0;
+        }
+
+        #add-question:hover{
+            border: 2px solid green;
+            background-color: aquamarine;
+            cursor: pointer;
+        }
+        .remove{
+            color: black;
+            border: 1px solid black;
+            text-align: center;
+        }
+        .remove:hover{
+            color: red;
+            cursor: pointer;
+        }
+        #add-question, #questions div.options div{
+            margin: 10px 0;
+            border: 1px solid black;
+            padding: 5px;
+        }
+        .remove-option{
+            color: black;
+            border: 1px solid black;
+            text-align: center;
+            display: inline-block;
+        }
+        .remove-option:hover{
+            color: red;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="{% static "paranoidApp/single-page-survey-creation-jquery.js" %}"></script>
+</head>
+
+<body>
+    <h1>Create a Survey</h1>
+    <div>
+        <label for="survey-name">Survey Name</label>
+        <input id="survey-name" type="text">
+    </div>
+
+    <div>
+        <label for="survey-desc">Survey Description</label>
+        <textarea id="survey-desc"></textarea>
+    </div>
+    <div id="questions"></div>
+    <div id="add-question">
+        <p>Add a Question</p>
+    </div>
+    <button id="submit">See Json</button>
+</body>
+
+</html>

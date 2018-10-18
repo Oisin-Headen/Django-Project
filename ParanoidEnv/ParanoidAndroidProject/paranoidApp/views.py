@@ -187,7 +187,10 @@ def survey_complete(request):
     # print(dataframe.describe())
     return HttpResponse(loader.get_template("paranoidApp/survey_complete.html").render({}, request))
 
-
+def create_survey(request):
+    """Create survey from a single page"""
+    return HttpResponse(loader.get_template("paranoidApp/survey_creation_single_page.html")
+                        .render({}, request))
 
 def create_survey_start(request):
     """Sends back the survey title, description, and the number of questions in the survey"""

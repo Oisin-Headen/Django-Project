@@ -10,6 +10,7 @@ urlpatterns = [
     path('error/', views.error, name='error'),
     path('view/results', views.survey_complete, name='survey_complete'),
     path('view/response', views.survey_post_data, name='survey_post_data'),
+    path('create-survey-single/', views.create_survey, name="create_survey_single"),
     path('create-survey/', views.create_survey_start, name='create_survey'),
     path('create-survey/post/', views.post_create_survey_start, name='create_survey_start'),
     path('create-survey/question-types/', views.create_survey_question_types,
