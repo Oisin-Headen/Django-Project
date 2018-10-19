@@ -20,7 +20,9 @@
         form {
             background-color: rgb(240,240,240);
         }
-        
+        .number-rating-display{
+            display: inline-block;
+        }
     </style>
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -54,6 +56,14 @@
                         $(this).prop("required", false);
                     });
                 }
+            });
+            $(".number-rating").each(function(){
+                value = $(this).val();
+                $(this).parent("section").find(".number-rating-display").html(value);
+            });
+            $(".number-rating").on("input",function(){
+                value = $(this).val();
+                $(this).parent("section").find(".number-rating-display").html(value);
             });
         });
     </script>
@@ -98,7 +108,8 @@
                 <label for="Q{{forloop.parentloop.counter}}-{{forloop.counter}}">{{choice}}</label>
             {% endfor %}
         {% elif question.type == "number_rating" %}
-            <input type="range" min="{{question.min}}" max="{{question.max}}" name="{{survey.id}}-{{forloop.counter}}">
+            <input type="range" min="{{question.min}}" max="{{question.max}}" name="{{survey.id}}-{{forloop.counter}}" class="number-rating">
+            <p class="number-rating-display"></p>
         {% elif question.type == "email" %}
             <input type="email" name="{{survey.id}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}>      
         {% else %}

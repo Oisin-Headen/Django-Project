@@ -61,21 +61,19 @@ def survey_post_data(request):
             if postdata[str(survey_id)+"-"+str(i)] == "":
                 list_entry += "NA"
 
-            elif question['type'] == "single_answer_multiple_choice":
+            elif question['type'] == "single_answer_multiple_choice" or question['type'] == "scale":
                 if postdata[str(survey_id)+"-"+str(i)] in question['choices']:
-                    list_entry += postdata[str(survey_id)+"-"+str(i)]
+                    list_entry += '"' + postdata[str(survey_id)+"-"+str(i)].replace('"', '""') + '"'
                 else:
                     error_occured = True
-                    print("single_answer_multiple_choice error")
                     break
 
-            elif question['type'] == "scale":
-                if postdata[str(survey_id)+"-"+str(i)] in question['choices']:
-                    list_entry += postdata[str(survey_id)+"-"+str(i)]
-                else:
-                    error_occured = True
-                    print("scale error")
-                    break
+            # elif :
+            #     if postdata[str(survey_id)+"-"+str(i)] in question['choices']:
+            #         list_entry += '"' + postdata[str(survey_id)+"-"+str(i)].replace('"', '""') + '"'
+            #     else:
+            #         error_occured = True
+            #         break
 
             elif question['type'] == "boolean":
                 if postdata[str(survey_id)+"-"+str(i)] == "Yes":
@@ -84,7 +82,6 @@ def survey_post_data(request):
                     list_entry += "No"
                 else:
                     error_occured = True
-                    print("boolean error")
                     break
 
             elif question['type'] == "text":
@@ -92,11 +89,10 @@ def survey_post_data(request):
 
             elif question['type'] == "number_rating":
                 number = postdata[str(survey_id)+"-"+str(i)]
-                if question['min'] <= int(number) <= question['max']:
-                    list_entry += str(number)
+                if int(question['min']) <= int(number) <= int(question['max']):
+                    list_entry += '"' + str(number).replace('"', '""') + '"'
                 else:
                     error_occured = True
-                    print("number_rating error")
                     break
 
             elif question['type'] == "email":
@@ -128,9 +124,9 @@ def survey_post_data(request):
                             list_entry += ","
                         continue
 
-                if subquestion['type'] == "scale":
+                if subquestion['type'] == "scale" or subquestion['type'] == "single_answer_multiple_choice":
                     if postdata[str(survey_id)+"-"+str(i)+"-"+str(j)] in subquestion['choices']:
-                        list_entry += postdata[str(survey_id)+"-"+str(i)+"-"+str(j)]
+                        list_entry += '"' + postdata[str(survey_id)+"-"+str(i)+"-"+str(j)].replace('"', '""') + '"'
                     else:
                         error_occured = True
                         break
@@ -149,8 +145,8 @@ def survey_post_data(request):
 
                 elif subquestion['type'] == "number_rating":
                     number = postdata[str(survey_id)+"-"+str(i)+"-"+str(j)]
-                    if subquestion['min'] <= int(number) <= subquestion['max']:
-                        list_entry += str(number)
+                    if int(subquestion['min']) <= int(number) <= int(subquestion['max']):
+                        list_entry += '"' + str(number).replace('"', '""') + '"'
                     else:
                         error_occured = True
                         break
@@ -191,6 +187,34 @@ def create_survey(request):
     """Create survey from a single page"""
     return HttpResponse(loader.get_template("paranoidApp/survey_creation_single_page.html")
                         .render({}, request))
+
+def create_survey_post(request):
+    """Post request for creating survey"""
+    json_data = json.loads(request.POST['json'])
+    # TODO Validate Json
+    database_entry = Survey(survey_name=json_data['name'],
+                            survey_desc=json_data['desc'])
+    database_entry.save()
+    survey_id = database_entry.pk
+    survey_file = "data/survey"+str(survey_id)+".json"
+    answers_file = "data/survey"+str(survey_id)+".csv"
+    json_data_string = json.dumps(json_data, indent=4)
+
+    survey_file_writing = open(survey_file, "w+")
+    survey_file_writing.write(json_data_string)
+    survey_file_writing.close()
+
+    csv_header = ""
+    for question in json_data['questions']:
+        csv_header += ('"'+question['column-name'].replace('"', '""')+'",')
+        if 'subquestions' in question.keys():
+            for subquestion in question['subquestions']:
+                csv_header += ('"'+subquestion['column-name'].replace('"', '""')+'",')
+    answers_file_writing = open(answers_file, "w+")
+    answers_file_writing.write(csv_header)
+    answers_file_writing.close()
+
+    return HttpResponseRedirect(reverse("survey_created", kwargs={"survey_id": survey_id}))
 
 def create_survey_start(request):
     """Sends back the survey title, description, and the number of questions in the survey"""
@@ -282,13 +306,13 @@ def create_survey_question_options_post(request):
     survey_file_writing.write(json_data)
     survey_file_writing.close()
 
-    answers_file_writing = open(answers_file, "w+")
     csv_header = ""
     for question in request.session['new_survey']['questions']:
         csv_header += ('"'+question['column-name'].replace('"', '""')+'",')
         if 'subquestions' in question.keys():
             for subquestion in question['subquestions']:
                 csv_header += ('"'+subquestion['column-name'].replace('"', '""')+'",')
+    answers_file_writing = open(answers_file, "w+")
     answers_file_writing.write(csv_header)
     answers_file_writing.close()
 

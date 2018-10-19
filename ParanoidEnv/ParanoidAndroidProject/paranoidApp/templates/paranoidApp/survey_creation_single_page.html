@@ -18,7 +18,7 @@
         }
 
         #add-question:hover{
-            border: 2px solid green;
+            border: 1px solid green;
             background-color: aquamarine;
             cursor: pointer;
         }
@@ -46,6 +46,19 @@
             color: red;
             cursor: pointer;
         }
+        .add-option{
+            margin: 10px 0;
+            border: 1px solid black;
+            padding: 3px;
+        }
+        .add-option:hover{
+            border: 1px solid green;
+            background-color: aquamarine;
+            cursor: pointer;
+        }
+        #hidden-form{
+            display: none;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="{% static "paranoidApp/single-page-survey-creation-jquery.js" %}"></script>
@@ -66,7 +79,11 @@
     <div id="add-question">
         <p>Add a Question</p>
     </div>
-    <button id="submit">See Json</button>
+    <button id="submit">Create Form</button>
+    <form id="hidden-form" method="POST" action="{% url 'create_survey_single_post' %}">
+        {% csrf_token %}
+        <input type="hidden" id="hidden-input" name="json">
+    </form>
 </body>
 
 </html>

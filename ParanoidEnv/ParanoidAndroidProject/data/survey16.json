@@ -1,0 +1,11 @@
+{
+    "name": "The Best Survey",
+    "desc": "The wizard survey",
+    "questions": [
+        {
+            "column-name": "test",
+            "text": "Test questions",
+            "type": "text"
+        }
+    ]
+}
