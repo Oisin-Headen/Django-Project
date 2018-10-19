@@ -46,7 +46,7 @@ def survey_post_data(request):
     try:
         postdata = request.POST
         survey_id = postdata['survey-id']
-        # TODO possibly remove this test survey?
+        # TODO possibly remove this test survey? <- When test survey is generated on user command and added to the database
         if int(survey_id) == -1:
             survey_file = "data/surveydata.json"
             answers_file = "data/surveydata.csv"
@@ -188,10 +188,43 @@ def create_survey(request):
     return HttpResponse(loader.get_template("paranoidApp/survey_creation_single_page.html")
                         .render({}, request))
 
+
+def validate_subquestions(json_data):
+    """Handles possible validation of subquestions"""
+    assert json_data['name']
+    assert json_data['desc']
+    for question in json_data['questions']:
+        assert question['text']
+        assert question['column-name']
+        assert question['type'] in QUESTION_TYPES
+        if question['type'] == "number_rating":
+            assert int(question['max']) < int(question['min']), "Max is less than min"
+        elif question['type'] == "single_answer_multiple_choice" or question['type'] == "scale":
+            assert question['choices']
+        elif question['type'] == "boolean":
+            if "on" in question.keys():
+                assert question['type'] in [True, False]
+                assert question['subquestions']
+                for subquestion in question['subquestions']:
+                    assert subquestion['text']
+                    assert subquestion['column-name']
+                    assert subquestion['type'] in QUESTION_TYPES
+                    if subquestion['type'] == "number_rating":
+                        assert (int(subquestion['max']) < 
+                                int(subquestion['min'])), "Max is less than min"
+                    elif (subquestion['type'] == "single_answer_multiple_choice" or 
+                          subquestion['type'] == "scale"):
+                        assert subquestion['choices']
+
 def create_survey_post(request):
     """Post request for creating survey"""
     json_data = json.loads(request.POST['json'])
-    # TODO Validate Json
+    try:
+        validate_subquestions(json_data)
+
+    except (KeyError, AssertionError):
+        return HttpResponseRedirect(reverse("error"))
+
     database_entry = Survey(survey_name=json_data['name'],
                             survey_desc=json_data['desc'])
     database_entry.save()
@@ -262,7 +295,6 @@ def survey_created(request, survey_id):
 #             }
 #             request.session['new_survey']['questions'].append(question)
 #         else:
-#             # TODO Throw an error!
 #             pass
 #     request.session.modified = True
 #     return HttpResponseRedirect(reverse('create_survey_question_options'))
