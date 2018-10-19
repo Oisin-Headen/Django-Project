@@ -216,110 +216,6 @@ def create_survey_post(request):
 
     return HttpResponseRedirect(reverse("survey_created", kwargs={"survey_id": survey_id}))
 
-def create_survey_start(request):
-    """Sends back the survey title, description, and the number of questions in the survey"""
-    return HttpResponse(loader.get_template("paranoidApp/survey_creation_num_questions.html")
-                        .render({}, request))
-
-def post_create_survey_start(request):
-    """The survey creation form posts here"""
-    postdata = request.POST
-    new_survey = {
-        'name': postdata['name'],
-        'desc': postdata['desc']
-    }
-    request.session['new_survey'] = new_survey
-    request.session['new_survey_num_questions'] = postdata['number_of_questions']
-    return HttpResponseRedirect(reverse('create_survey_question_types'))
-
-def create_survey_question_types(request):
-    """Allow the user to choose a question type per question"""
-    data = {
-        "survey_name": request.session['new_survey']['name'],
-        "number_questions": range(1, 1 + int(request.session['new_survey_num_questions']))
-    }
-    return HttpResponse(loader.get_template("paranoidApp/survey_creation_question_types.html")
-                        .render(data, request))
-
-def post_create_survey_question_types(request):
-    """Process the user's question type choices"""
-    request.session['new_survey']['questions'] = []
-    for i in range(1, 1 + int(request.session['new_survey_num_questions'])):
-        if request.POST['Q'+str(i)] in QUESTION_TYPES.keys():
-            question = {
-                "type": request.POST['Q'+str(i)]
-            }
-            request.session['new_survey']['questions'].append(question)
-        else:
-            # TODO Throw an error!
-            pass
-    request.session.modified = True
-    return HttpResponseRedirect(reverse('create_survey_question_options'))
-
-def create_survey_question_options(request):
-    """Allow the user to customize the questions"""
-    questions_data = []
-    for question in request.session['new_survey']['questions']:
-        question_data = {
-            "type_name": QUESTION_TYPES[question['type']],
-            "type": question['type']
-        }
-        questions_data.append(question_data)
-    data = {
-        "questions": questions_data,
-        "name": request.session['new_survey']['name']
-    }
-    print(request.session['new_survey']['questions'])
-    return HttpResponse(loader.get_template("paranoidApp/survey_creation_question_options.html")
-                        .render(data, request))
-
-def create_survey_question_options_post(request):
-    """Finalize survey"""
-    try:
-        for i, question in enumerate(request.session['new_survey']['questions'], 1):
-            question['column-name'] = request.POST['Q'+str(i)+'-title']
-            question['text'] = request.POST['Q'+str(i)+'-text']
-            if question['type'] == "scale" or question['type'] == "single_answer_multiple_choice":
-                choices = [
-                    request.POST['Q'+str(i)+"-choice1"],
-                    request.POST['Q'+str(i)+"-choice2"],
-                    request.POST['Q'+str(i)+"-choice3"]
-                ]
-                question['choices'] = choices
-            elif question['type'] == "number_rating":
-                question['max'] = int(request.POST['Q'+str(i)+"-max"])
-                question['min'] = int(request.POST['Q'+str(i)+"-min"])
-    except KeyError:
-        return HttpResponseRedirect(reverse("error"))
-
-    # print(request.session['new_survey'])
-
-    database_entry = Survey(survey_name=request.session['new_survey']['name'],
-                            survey_desc=request.session['new_survey']['desc'])
-    database_entry.save()
-    survey_id = database_entry.pk
-    survey_file = "data/survey"+str(survey_id)+".json"
-    answers_file = "data/survey"+str(survey_id)+".csv"
-    json_data = json.dumps(request.session['new_survey'], indent=4)
-
-    survey_file_writing = open(survey_file, "w+")
-    survey_file_writing.write(json_data)
-    survey_file_writing.close()
-
-    csv_header = ""
-    for question in request.session['new_survey']['questions']:
-        csv_header += ('"'+question['column-name'].replace('"', '""')+'",')
-        if 'subquestions' in question.keys():
-            for subquestion in question['subquestions']:
-                csv_header += ('"'+subquestion['column-name'].replace('"', '""')+'",')
-    answers_file_writing = open(answers_file, "w+")
-    answers_file_writing.write(csv_header)
-    answers_file_writing.close()
-
-    # del request.session['new_survey']
-    # del request.session['new_survey_num_questions']
-    return HttpResponseRedirect(reverse("survey_created", kwargs={"survey_id": survey_id}))
-
 
 def survey_created(request, survey_id):
     """Survey has been created"""
@@ -327,3 +223,112 @@ def survey_created(request, survey_id):
     return HttpResponse(loader.get_template("paranoidApp/survey_created.html")
                         .render({"surveyname":survey.survey_name, 
                                 "surveydesc": survey.survey_desc}, request))
+
+
+
+
+# def create_survey_start(request):
+#     """Sends back the survey title, description, and the number of questions in the survey"""
+#     return HttpResponse(loader.get_template("paranoidApp/survey_creation_num_questions.html")
+#                         .render({}, request))
+
+# def post_create_survey_start(request):
+#     """The survey creation form posts here"""
+#     postdata = request.POST
+#     new_survey = {
+#         'name': postdata['name'],
+#         'desc': postdata['desc']
+#     }
+#     request.session['new_survey'] = new_survey
+#     request.session['new_survey_num_questions'] = postdata['number_of_questions']
+#     return HttpResponseRedirect(reverse('create_survey_question_types'))
+
+# def create_survey_question_types(request):
+#     """Allow the user to choose a question type per question"""
+#     data = {
+#         "survey_name": request.session['new_survey']['name'],
+#         "number_questions": range(1, 1 + int(request.session['new_survey_num_questions']))
+#     }
+#     return HttpResponse(loader.get_template("paranoidApp/survey_creation_question_types.html")
+#                         .render(data, request))
+
+# def post_create_survey_question_types(request):
+#     """Process the user's question type choices"""
+#     request.session['new_survey']['questions'] = []
+#     for i in range(1, 1 + int(request.session['new_survey_num_questions'])):
+#         if request.POST['Q'+str(i)] in QUESTION_TYPES.keys():
+#             question = {
+#                 "type": request.POST['Q'+str(i)]
+#             }
+#             request.session['new_survey']['questions'].append(question)
+#         else:
+#             # TODO Throw an error!
+#             pass
+#     request.session.modified = True
+#     return HttpResponseRedirect(reverse('create_survey_question_options'))
+
+# def create_survey_question_options(request):
+#     """Allow the user to customize the questions"""
+#     questions_data = []
+#     for question in request.session['new_survey']['questions']:
+#         question_data = {
+#             "type_name": QUESTION_TYPES[question['type']],
+#             "type": question['type']
+#         }
+#         questions_data.append(question_data)
+#     data = {
+#         "questions": questions_data,
+#         "name": request.session['new_survey']['name']
+#     }
+#     print(request.session['new_survey']['questions'])
+#     return HttpResponse(loader.get_template("paranoidApp/survey_creation_question_options.html")
+#                         .render(data, request))
+
+# def create_survey_question_options_post(request):
+#     """Finalize survey"""
+#     try:
+#         for i, question in enumerate(request.session['new_survey']['questions'], 1):
+#             question['column-name'] = request.POST['Q'+str(i)+'-title']
+#             question['text'] = request.POST['Q'+str(i)+'-text']
+#             if question['type'] == "scale" or question['type'] == "single_answer_multiple_choice":
+#                 choices = [
+#                     request.POST['Q'+str(i)+"-choice1"],
+#                     request.POST['Q'+str(i)+"-choice2"],
+#                     request.POST['Q'+str(i)+"-choice3"]
+#                 ]
+#                 question['choices'] = choices
+#             elif question['type'] == "number_rating":
+#                 question['max'] = int(request.POST['Q'+str(i)+"-max"])
+#                 question['min'] = int(request.POST['Q'+str(i)+"-min"])
+#     except KeyError:
+#         return HttpResponseRedirect(reverse("error"))
+
+#     # print(request.session['new_survey'])
+
+#     database_entry = Survey(survey_name=request.session['new_survey']['name'],
+#                             survey_desc=request.session['new_survey']['desc'])
+#     database_entry.save()
+#     survey_id = database_entry.pk
+#     survey_file = "data/survey"+str(survey_id)+".json"
+#     answers_file = "data/survey"+str(survey_id)+".csv"
+#     json_data = json.dumps(request.session['new_survey'], indent=4)
+
+#     survey_file_writing = open(survey_file, "w+")
+#     survey_file_writing.write(json_data)
+#     survey_file_writing.close()
+
+#     csv_header = ""
+#     for question in request.session['new_survey']['questions']:
+#         csv_header += ('"'+question['column-name'].replace('"', '""')+'",')
+#         if 'subquestions' in question.keys():
+#             for subquestion in question['subquestions']:
+#                 csv_header += ('"'+subquestion['column-name'].replace('"', '""')+'",')
+#     answers_file_writing = open(answers_file, "w+")
+#     answers_file_writing.write(csv_header)
+#     answers_file_writing.close()
+
+#     # del request.session['new_survey']
+#     # del request.session['new_survey_num_questions']
+#     return HttpResponseRedirect(reverse("survey_created", kwargs={"survey_id": survey_id}))
+
+
