@@ -74,7 +74,6 @@ def survey_post_data(request):
             #     else:
             #         error_occured = True
             #         break
-
             elif question['type'] == "boolean":
                 if postdata[str(survey_id)+"-"+str(i)] == "Yes":
                     list_entry += "Yes"
@@ -118,7 +117,8 @@ def survey_post_data(request):
 
                 if question['on']:
                     if (postdata[str(survey_id)+"-"+str(i)] == "Yes" and question['on'] is False
-                       ) or (postdata[str(survey_id)+"-"+str(i)] == "No" and question['on'] is True):
+                       ) or (postdata[str(survey_id)+"-"+str(i)] == "No" and
+                             question['on'] is True):
                         list_entry += "NA"
                         if i != len(survey_stucture['questions']) or j != len(question['subquestions']):
                             list_entry += ","
@@ -189,8 +189,8 @@ def create_survey(request):
                         .render({}, request))
 
 
-def validate_subquestions(json_data):
-    """Handles possible validation of subquestions"""
+def validate_questions(json_data):
+    """Handles possible validation of questions"""
     assert json_data['name']
     assert json_data['desc']
     for question in json_data['questions']:
@@ -198,21 +198,23 @@ def validate_subquestions(json_data):
         assert question['column-name']
         assert question['type'] in QUESTION_TYPES
         if question['type'] == "number_rating":
-            assert int(question['max']) < int(question['min']), "Max is less than min"
+            assert int(question['max']) > int(question['min']), "Max is less than min"
         elif question['type'] == "single_answer_multiple_choice" or question['type'] == "scale":
             assert question['choices']
         elif question['type'] == "boolean":
             if "on" in question.keys():
-                assert question['type'] in [True, False]
+                assert question['on'] in ["true", "false"]
+                # correcting this value to boolean, rather than text
+                question['on'] = question['on'] == "true"
                 assert question['subquestions']
                 for subquestion in question['subquestions']:
                     assert subquestion['text']
                     assert subquestion['column-name']
                     assert subquestion['type'] in QUESTION_TYPES
                     if subquestion['type'] == "number_rating":
-                        assert (int(subquestion['max']) < 
+                        assert (int(subquestion['max']) <
                                 int(subquestion['min'])), "Max is less than min"
-                    elif (subquestion['type'] == "single_answer_multiple_choice" or 
+                    elif (subquestion['type'] == "single_answer_multiple_choice" or
                           subquestion['type'] == "scale"):
                         assert subquestion['choices']
 
@@ -220,9 +222,10 @@ def create_survey_post(request):
     """Post request for creating survey"""
     json_data = json.loads(request.POST['json'])
     try:
-        validate_subquestions(json_data)
+        validate_questions(json_data)
 
-    except (KeyError, AssertionError):
+    except (KeyError, AssertionError) as error_here:
+        print(error_here)
         return HttpResponseRedirect(reverse("error"))
 
     database_entry = Survey(survey_name=json_data['name'],
@@ -254,8 +257,8 @@ def survey_created(request, survey_id):
     """Survey has been created"""
     survey = Survey.objects.get(pk=survey_id)
     return HttpResponse(loader.get_template("paranoidApp/survey_created.html")
-                        .render({"surveyname":survey.survey_name, 
-                                "surveydesc": survey.survey_desc}, request))
+                        .render({"surveyname":survey.survey_name,
+                                 "surveydesc": survey.survey_desc}, request))
 
 
 
@@ -362,5 +365,3 @@ def survey_created(request, survey_id):
 #     # del request.session['new_survey']
 #     # del request.session['new_survey_num_questions']
 #     return HttpResponseRedirect(reverse("survey_created", kwargs={"survey_id": survey_id}))
-
-

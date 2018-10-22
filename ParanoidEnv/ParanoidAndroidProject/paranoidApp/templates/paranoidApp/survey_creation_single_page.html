@@ -7,7 +7,7 @@
             vertical-align: top;
         }
         #add-question, #questions div{
-            border: 2px solid black;
+            border: 5px solid black;
             margin-top: 5px;
             padding: 10px;
         }
@@ -15,6 +15,12 @@
         #questions .question div{
             border: none;
             padding: 0;
+        }
+
+        #questions .question div .subquestion{
+            border: 3px solid black;
+            margin-top: 5px;
+            padding: 10px;
         }
 
         #add-question:hover{
@@ -46,12 +52,12 @@
             color: red;
             cursor: pointer;
         }
-        .add-option{
+        .add-option, .add-subquestion{
             margin: 10px 0;
             border: 1px solid black;
             padding: 3px;
         }
-        .add-option:hover{
+        .add-option:hover, .add-subquestion:hover{
             border: 1px solid green;
             background-color: aquamarine;
             cursor: pointer;
