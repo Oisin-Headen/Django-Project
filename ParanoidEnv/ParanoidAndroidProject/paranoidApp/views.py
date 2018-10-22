@@ -59,7 +59,7 @@ def survey_post_data(request):
 
         for i, question in enumerate(survey_stucture['questions'], 1):
             if postdata[str(survey_id)+"-"+str(i)] == "":
-                if question['optional'] != null:
+                if question['optional'] is not None:
                     list_entry += "NA"
                 else:
                     error_occured = True
