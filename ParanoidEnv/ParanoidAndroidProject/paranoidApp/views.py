@@ -59,7 +59,11 @@ def survey_post_data(request):
 
         for i, question in enumerate(survey_stucture['questions'], 1):
             if postdata[str(survey_id)+"-"+str(i)] == "":
-                list_entry += "NA"
+                if question['optional'] != null:
+                    list_entry += "NA"
+                else:
+                    error_occured = True
+                    break
 
             elif question['type'] == "single_answer_multiple_choice" or question['type'] == "scale":
                 if postdata[str(survey_id)+"-"+str(i)] in question['choices']:
