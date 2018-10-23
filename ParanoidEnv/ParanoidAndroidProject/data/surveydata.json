@@ -3,7 +3,7 @@
     "desc": "A sample survey with data for ParanoidAndroid",
     "questions":[
         {
-            "type": "single_answer_multiple_choice",
+            "type": "dropdown",
             "text": "Which village cinema did you last visit to watch a movie?",
             "column-name": "Cinema",
             "choices": [
@@ -19,7 +19,7 @@
             "column-name": "Regular-Cimema"
         },
         {
-            "type": "single_answer_multiple_choice",
+            "type": "dropdown",
             "text": "Which day of the week did you attend the Village cinema on your last visit?",
             "column-name": "Regular-Day",
             "choices": [
@@ -27,7 +27,7 @@
             ]
         },
         {
-            "type": "scale",
+            "type": "radio",
             "text": "How convenient were the available session times for the movie you watched?",
             "column-name": "How-Convenient",
             "choices": [
@@ -35,7 +35,7 @@
             ]
         },
         {
-            "type": "scale",
+            "type": "radio",
             "text": "Approximately how long did it take for you to reach the cinema from home on your last visit?",
             "column-name": "Travel-time",
             "choices": [
@@ -43,7 +43,7 @@
             ]
         },
         {
-            "type": "scale",
+            "type": "radio",
             "text": "Including your most recent visit, how frequently have you been to the movies in the past 3 months?",
             "column-name": "Frequency",
             "choices": [
@@ -91,7 +91,7 @@
             "column-name": "Seat-Comfort"
         },
         {
-            "type": "scale",
+            "type": "radio",
             "text": "How would you rate temperature in the cinema you were in?",
             "column-name": "Temperature",
             "choices": [
@@ -99,7 +99,7 @@
             ]
         },
         {
-            "type": "scale",
+            "type": "radio",
             "text": "Staffing levels were adequate with reasonable wait times",
             "column-name": "Good-Staffing",
             "choices": [

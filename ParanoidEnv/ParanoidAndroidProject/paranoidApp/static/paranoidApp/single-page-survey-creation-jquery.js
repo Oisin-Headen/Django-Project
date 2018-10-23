@@ -17,10 +17,10 @@ var question = [
             "<label>Question Type</label>",
             "<select class=\"question-type\">",
                 "<option value=\"text\">Text</option>",
-                "<option value=\"single_answer_multiple_choice\">Dropdown</option>",
+                "<option value=\"dropdown\">Dropdown</option>",
                 "<option value=\"boolean\">Yes or No</option>",
-                "<option value=\"scale\">Radio Buttons</option>",
-                "<option value=\"number_rating\">Numerical</option>",
+                "<option value=\"radio\">Radio Buttons</option>",
+                "<option value=\"number_rating\">Numerical Range</option>",
                 "<option value=\"email\">Email</option>",
             "</select>",
         "</div>",
@@ -85,7 +85,7 @@ $(document).ready(function () {
             if(type == "number_rating"){
                 $question_type_specific.append(number_rating_extra);
             }
-            else if(type == "scale" || type == "single_answer_multiple_choice"){
+            else if(type == "radio" || type == "dropdown"){
                 $question_type_specific.append(multiple_choice_extra_start);
                 $question_type_specific.find(".options").append(multiple_choice_extra_option);
                 $question_type_specific.find(".add-option").click(function(){
@@ -112,7 +112,7 @@ $(document).ready(function () {
                         if(type == "number_rating"){
                             $boolean_question_type_specific.append(number_rating_extra);
                         }
-                        else if(type == "scale" || type == "single_answer_multiple_choice"){
+                        else if(type == "radio" || type == "dropdown"){
                             $boolean_question_type_specific.append(multiple_choice_extra_start);
                             $boolean_question_type_specific.find(".options").append(multiple_choice_extra_option);
                             $boolean_question_type_specific.find(".add-option").click(function(){
@@ -151,7 +151,7 @@ $(document).ready(function () {
                 question_data['min'] = $(this).find(".minimum").val();
                 question_data['max'] = $(this).find(".maximum").val();
             }
-            else if(question_type == "scale" || question_type == "single_answer_multiple_choice"){
+            else if(question_type == "radio" || question_type == "dropdown"){
                 var options = [];
                 $(this).find(".option-text").each(function(){
                     options.push($(this).val());
@@ -179,7 +179,7 @@ $(document).ready(function () {
                         subquestion_data['min'] = $(this).find(".minimum").val();
                         subquestion_data['max'] = $(this).find(".maximum").val();
                     }
-                    else if(subquestion_type == "scale" || subquestion_type == "single_answer_multiple_choice"){
+                    else if(subquestion_type == "radio" || subquestion_type == "dropdown"){
                         var options = [];
                         $(this).find(".option-text").each(function(){
                             options.push($(this).val());

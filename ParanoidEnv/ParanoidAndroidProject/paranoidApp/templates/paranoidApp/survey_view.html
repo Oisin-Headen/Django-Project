@@ -82,7 +82,7 @@
         <label>Q{{forloop.counter}}: {{question.text}}</label>
         {% if question.type == "text" %}
             <textarea name="{{survey.id}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}></textarea>
-        {% elif question.type == "single_answer_multiple_choice" %}
+        {% elif question.type == "dropdown" %}
             <select name="{{survey.id}}-{{forloop.counter}}">
                 {% for choice in question.choices %}
                     <option>{{choice}}</option>
@@ -101,7 +101,7 @@
                 data-subquestion-header="Q{{forloop.counter}}-subquestions"
                 data-on="{% if question.on == false %}True{% else %}False{% endif %}"{% endif %}>
             <label for="Q2A2">No</label>
-        {% elif question.type == "scale" %}
+        {% elif question.type == "radio" %}
             {% for choice in question.choices %}
                 <input type="radio" name="{{survey.id}}-{{forloop.parentloop.counter}}" value="{{choice}}" 
                     id="Q{{forloop.parentloop.counter}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}>
@@ -125,7 +125,7 @@
                     {% if subquestion.type == "text" %}
                         <textarea name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}" 
                             data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}"></textarea>      
-                        {% elif subquestion.type == "single_answer_multiple_choice" %}
+                        {% elif subquestion.type == "dropdown" %}
                         <select name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}"
                             data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}">      
                         {% for choice in subquestion.choices %}
@@ -141,7 +141,7 @@
                             value="No" id="Q{{forloop.counter}}A2"
                             data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}">      
                         <label for="Q2A2">No</label>
-                    {% elif subquestion.type == "scale" %}
+                    {% elif subquestion.type == "radio" %}
                         {% for choice in question.choices %}
                             <input type="radio" name="{{survey.id}}-{{forloop.parentloop.parentloop.counter}}-{{forloop.parentloop.counter}}" 
                                 value="{{choice}}" id="Q{{forloop.parentloop.counter}}-{{forloop.counter}}"
