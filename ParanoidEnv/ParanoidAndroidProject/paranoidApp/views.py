@@ -30,7 +30,7 @@ def view_survey(request, survey_id=-1):
     """View and respond to a survey.
     Currently only views the hard-coded sample survey"""
     if survey_id == -1:
-        file = open("data/surveydata.json", "r")
+        file = open("data/survey-1.json", "r")
     else:
         survey = get_object_or_404(Survey, pk=survey_id)
         file = open("data/survey" + str(survey.pk) + ".json", "r")
@@ -40,11 +40,6 @@ def view_survey(request, survey_id=-1):
     return HttpResponse(loader.get_template("paranoidApp/survey_view.html")
                         .render(survey_data, request))
 
-# 
-# OISIN!!!
-# Remove the else blocks in the following function, replace with asserts!
-# 
-# 
 
 
 def process_question(question_input, question):
@@ -74,8 +69,6 @@ def process_question(question_input, question):
 
     return question_value
 
-
-# TODO Split up this function, currently spaghetti code
 def survey_post_data(request):
     """Take the posted data, validate, and store it"""
     try:
