@@ -83,21 +83,17 @@ def survey_post_data(request):
         survey_id = postdata['survey-id']
         # TODO possibly remove this test survey?
         # ^ When test survey is generated on user command and added to the database
-        if int(survey_id) == -1:
-            survey_file = "data/surveydata.json"
-            answers_file = "data/surveydata.csv"
-        else:
-            survey_file = "data/survey" + str(survey_id) + ".json"
-            answers_file = "data/survey" + str(survey_id) + ".csv"
+        survey_file = "data/survey" + str(survey_id) + ".json"
+        answers_file = "data/survey" + str(survey_id) + ".csv"
         list_entry = "\n"
-        error_occured = False
         survey_stucture = json.loads(open(survey_file, "r").read())
 
         for i, question in enumerate(survey_stucture['questions'], 1):
             try:
-                list_entry += process_question(postdata[str(survey_id)+"-"+str(i)], question)
+                question_data_input = postdata[str(survey_id)+"-"+str(i)]
+                list_entry += process_question(question_data_input, question)
             except AssertionError:
-                HttpResponseRedirect("error")
+                return HttpResponseRedirect("error")
 
             subquestions = []
             if "subquestions" in question:
@@ -107,32 +103,23 @@ def survey_post_data(request):
                 list_entry += ","
 
             for j, subquestion in enumerate(subquestions, 1):
-                if postdata[str(survey_id)+"-"+str(i)+"-"+str(j)] == "":
+                subquestion_input = postdata[str(survey_id)+"-"+str(i)+"-"+str(j)]
+                if subquestion_input == "":
                     list_entry += "NA"
-                    if i != len(survey_stucture['questions']) or j != len(question['subquestions']):
-                        list_entry += ","
-                    continue
 
-                if question['on']:
-                    if (postdata[str(survey_id)+"-"+str(i)] == "Yes" and question['on'] is False
-                       ) or (postdata[str(survey_id)+"-"+str(i)] == "No" and
-                             question['on'] is True):
+                elif question['on']:
+                    if (question_data_input == "Yes" and question['on'] is False
+                       ) or (question_data_input == "No" and question['on'] is True):
                         list_entry += "NA"
-                        if i != len(survey_stucture['questions']
-                                   ) or j != len(question['subquestions']):
-                            list_entry += ","
-                        continue
 
-                try:
-                    list_entry += process_question(postdata[str(survey_id)+"-"+str(i)+"-"+str(j)], subquestion)
-                except AssertionError:
-                    HttpResponseRedirect("error")
+                else:
+                    try:
+                        list_entry += process_question(subquestion_input, subquestion)
+                    except AssertionError:
+                        return HttpResponseRedirect("error")
 
                 if i != len(survey_stucture['questions']) or j != len(question['subquestions']):
                     list_entry += ","
-
-        if error_occured:
-            return HttpResponseRedirect(reverse("error"))
 
         data_file = open(answers_file, "a")
         data_file.write(list_entry)
