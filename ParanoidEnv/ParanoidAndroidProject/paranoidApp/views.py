@@ -1,5 +1,6 @@
 """This file contains the url method definitions"""
 import json
+import os
 # import pandas
 # import string
 from django.http import HttpResponse, HttpResponseRedirect
@@ -30,10 +31,14 @@ def view_survey(request, survey_id=-1):
     """View and respond to a survey.
     Currently only views the hard-coded sample survey"""
     if survey_id == -1:
-        file = open("data/survey-1.json", "r")
+        file_name = "data/survey-1.json"
     else:
         survey = get_object_or_404(Survey, pk=survey_id)
-        file = open("data/survey" + str(survey.pk) + ".json", "r")
+        file_name = "data/survey" + str(survey.pk) + ".json"
+
+    current_folder = os.path.dirname(os.path.abspath(__file__))
+    file = open(os.path.join(current_folder, file_name), "r")
+
     json_data = json.loads(file.read())
     json_data['id'] = survey_id
     survey_data = {"survey":json_data}
@@ -76,8 +81,10 @@ def survey_post_data(request):
         survey_id = postdata['survey-id']
         # TODO possibly remove this test survey?
         # ^ When test survey is generated on user command and added to the database
-        survey_file = "data/survey" + str(survey_id) + ".json"
-        answers_file = "data/survey" + str(survey_id) + ".csv"
+
+        current_folder = os.path.dirname(os.path.abspath(__file__))
+        survey_file = os.path.join(current_folder, "data/survey" + str(survey_id) + ".json")
+        answers_file = os.path.join(current_folder, "data/survey" + str(survey_id) + ".csv")
         list_entry = "\n"
         survey_stucture = json.loads(open(survey_file, "r").read())
 
@@ -182,10 +189,13 @@ def create_survey_post(request):
                             survey_desc=json_data['desc'])
     database_entry.save()
     survey_id = database_entry.pk
-    survey_file = "data/survey"+str(survey_id)+".json"
-    answers_file = "data/survey"+str(survey_id)+".csv"
+
+    current_folder = os.path.dirname(os.path.abspath(__file__))
+    survey_file = os.path.join(current_folder, "data/survey"+str(survey_id)+".json")
+    answers_file = os.path.join(current_folder, "data/survey"+str(survey_id)+".csv")
     json_data_string = json.dumps(json_data, indent=4)
 
+    
     survey_file_writing = open(survey_file, "w+")
     survey_file_writing.write(json_data_string)
     survey_file_writing.close()
