@@ -102,8 +102,8 @@ $(document).ready(function () {
                         $(this).addClass("subquestion");
                         $(this).removeClass("question");
                     });
-                    $(".remove").click(function () {
-                        $(this).parent(".question").remove();
+                    $(this).siblings(".boolean-subquestions").find(".remove").click(function () {
+                        $(this).parent(".subquestion").remove();
                     });
                     $(".question-type").change(function(){
                         var $boolean_question_type_specific = $(this).parent("div").siblings(".question-type-specific");
