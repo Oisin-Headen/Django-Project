@@ -1,4 +1,4 @@
-"""This file contains the url method definitions"""
+"""This file contains the url method definitions for the app"""
 import json
 import os
 # import pandas
