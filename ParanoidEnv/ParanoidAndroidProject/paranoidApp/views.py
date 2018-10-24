@@ -195,7 +195,7 @@ def create_survey_post(request):
     answers_file = os.path.join(current_folder, "data/survey"+str(survey_id)+".csv")
     json_data_string = json.dumps(json_data, indent=4)
 
-    
+
     survey_file_writing = open(survey_file, "w+")
     survey_file_writing.write(json_data_string)
     survey_file_writing.close()
