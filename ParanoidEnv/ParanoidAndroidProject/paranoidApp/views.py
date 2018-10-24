@@ -72,13 +72,17 @@ def process_question(question_input, question):
     elif question['type'] == "email":
         question_value = '"' + question_input.replace('"', '""') + '"'
 
+    else:
+        # The type doesn't match, should never happen
+        raise AssertionError
+
+    print("value inside helper: "+question_value)
     return question_value
 
 def survey_post_data(request):
     """Take the posted data, validate, and store it"""
     try:
-        postdata = request.POST
-        survey_id = postdata['survey-id']
+        survey_id = request.POST['survey-id']
         # TODO possibly remove this test survey?
         # ^ When test survey is generated on user command and added to the database
 
@@ -90,7 +94,7 @@ def survey_post_data(request):
 
         for i, question in enumerate(survey_stucture['questions'], 1):
             try:
-                question_data_input = postdata[str(survey_id)+"-"+str(i)]
+                question_data_input = request.POST[str(survey_id)+"-"+str(i)]
                 list_entry += process_question(question_data_input, question)
             except AssertionError:
                 return HttpResponseRedirect("error")
@@ -103,20 +107,25 @@ def survey_post_data(request):
                 list_entry += ","
 
             for j, subquestion in enumerate(subquestions, 1):
-                subquestion_input = postdata[str(survey_id)+"-"+str(i)+"-"+str(j)]
-                if subquestion_input == "":
-                    list_entry += "NA"
+                subquestion_input = request.POST[str(survey_id)+"-"+str(i)+"-"+str(j)]
 
-                elif question['on']:
+                print(subquestion['type'])
+                print(subquestion_input)
+                print(question['on'])
+                print(question_data_input)
+
+                if question['on']:
                     if (question_data_input == "Yes" and question['on'] is False
                        ) or (question_data_input == "No" and question['on'] is True):
                         list_entry += "NA"
 
+                    else:
+                        try:
+                            list_entry += process_question(subquestion_input, subquestion)
+                        except AssertionError:
+                            return HttpResponseRedirect("error")
                 else:
-                    try:
-                        list_entry += process_question(subquestion_input, subquestion)
-                    except AssertionError:
-                        return HttpResponseRedirect("error")
+                    return HttpResponseRedirect("error")
 
                 if i != len(survey_stucture['questions']) or j != len(question['subquestions']):
                     list_entry += ","
