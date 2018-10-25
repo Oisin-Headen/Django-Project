@@ -1,3 +1,28 @@
-p{
-    color: red;
+/* Sticky footer styles
+Reference: https://stackoverflow.com/questions/10099422/flushing-footer-to-bottom-of-the-page-twitter-bootstrap
+-------------------------------------------------- */
+html,
+body {
+    height: 100%;
+    /* The html and body elements cannot have any padding or margin. */
 }
+
+/* Wrapper for page content to push down footer */
+#wrap {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    /* Negative indent footer by it's height */
+    margin: 0 auto -120px;
+}
+
+/* Set the fixed height of the footer here */
+#push,
+#footer {
+    height: 120px;
+}
+
+#footer {
+    background-color: #4c4c4c;
+}
+

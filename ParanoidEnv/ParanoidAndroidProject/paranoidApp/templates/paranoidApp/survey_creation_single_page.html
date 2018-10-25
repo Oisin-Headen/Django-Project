@@ -1,12 +1,15 @@
+{% extends "paranoidApp/base.html" %}
+
 {% load static %}
 <html>
 
-<head>
+{% block head %}
     <link rel="stylesheet" href="{% static "paranoidApp/single-page-survey-creation-styles.css" %}">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="{% static "paranoidApp/single-page-survey-creation-jquery.js" %}"></script>
-</head>
+{% endblock %}
 
+{% block content %}
 <body>
 
     <p><a href="{% url "index" %}">Home Page</a></p>
@@ -33,3 +36,5 @@
 </body>
 
 </html>
+
+{% endblock %}
