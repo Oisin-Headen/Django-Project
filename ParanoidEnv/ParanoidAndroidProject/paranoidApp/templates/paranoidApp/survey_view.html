@@ -4,74 +4,11 @@
 
 {% block content %}
 <head>
-    <style>
-        select {
-            overflow-y: auto;
-        }
-    
-        section > label:first-child {
-            display: block;
-            background-color: rgb(100,100,100);
-            font-weight: bold;
-            font-size: 20px;
-            color: white;
-            margin-bottom: 10px;
-        }
-        
-        section {
-            margin-bottom: 30px;
-        }
-        
-        form {
-            background-color: rgb(240,240,240);
-        }
-        .number-rating-display{
-            display: inline-block;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="{% static "paranoidApp/survey-view-styles.css" %}">
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 
-    <script>
-        $(document).ready(function(){
-            $(".subquestions").hide();
-            $(".subquestions-mainquestion").change(function(){
-                sectionclass = $(this).attr('data-subquestion-header');
-                // $(".subquestions").slideToggle();
-                // $("."+sectionclass).slideToggle();
-                if ($(this).attr("data-on") == "True")
-                {
-                    $("."+sectionclass).slideDown();
-                    $("."+sectionclass+" textarea," +
-                      "."+sectionclass+" select," +
-                      "."+sectionclass+" input").each(function(){
-                        optional = $(this).attr("data-optional");
-                        if(optional == "False")
-                        {
-                            $(this).prop("required", true);
-                        }
-                    });
-                }
-                else
-                {
-                    $("."+sectionclass).slideUp();
-                    $("."+sectionclass+" textarea," +
-                      "."+sectionclass+" select," +
-                      "."+sectionclass+" input").each(function(){
-                        $(this).prop("required", false);
-                    });
-                }
-            });
-            $(".number-rating").each(function(){
-                value = $(this).val();
-                $(this).parent("section").find(".number-rating-display").html(value);
-            });
-            $(".number-rating").on("input",function(){
-                value = $(this).val();
-                $(this).parent("section").find(".number-rating-display").html(value);
-            });
-        });
-    </script>
+    <script src="{% static "paranoidApp/toggle-subquestions.js" %}"></script>
 </head>
 
 <p><a href="{% url "index" %}">Home Page</a></p>
