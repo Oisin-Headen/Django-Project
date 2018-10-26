@@ -5,8 +5,7 @@
 
 {% block head %}
     <link rel="stylesheet" href="{% static "paranoidApp/single-page-survey-creation-styles.css" %}">
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="{% static "paranoidApp/single-page-survey-creation-jquery.js" %}"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script> -->
 {% endblock %}
 
 {% block content %}
@@ -37,4 +36,8 @@
 
 </html>
 
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static "paranoidApp/single-page-survey-creation-jquery.js" %}"></script>
 {% endblock %}

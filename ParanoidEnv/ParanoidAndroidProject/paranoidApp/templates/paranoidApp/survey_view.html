@@ -5,10 +5,10 @@
 {% block head %}
     <link rel="stylesheet" type="text/css" href="{% static "paranoidApp/survey-view-styles.css" %}">
 
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-
-    <script src="{% static "paranoidApp/toggle-subquestions.js" %}"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script> -->
 {% endblock %}
+
+
 
 {% block content %}
 
@@ -111,4 +111,8 @@
 <input type="submit">
 </form>
 
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static "paranoidApp/toggle-subquestions.js" %}"></script>
 {% endblock %}
