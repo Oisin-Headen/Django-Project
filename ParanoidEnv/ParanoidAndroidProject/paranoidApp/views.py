@@ -76,7 +76,6 @@ def process_question(question_input, question):
         # The type doesn't match, should never happen
         raise AssertionError
 
-    print("value inside helper: "+question_value)
     return question_value
 
 def survey_post_data(request):
@@ -109,11 +108,6 @@ def survey_post_data(request):
             for j, subquestion in enumerate(subquestions, 1):
                 subquestion_input = request.POST[str(survey_id)+"-"+str(i)+"-"+str(j)]
 
-                print(subquestion['type'])
-                print(subquestion_input)
-                print(question['on'])
-                print(question_data_input)
-
                 if question['on']:
                     if (question_data_input == "Yes" and question['on'] is False
                        ) or (question_data_input == "No" and question['on'] is True):
@@ -145,8 +139,6 @@ def error(request):
 
 def survey_complete(request):
     """The survey was completed succsessfully"""
-    # dataframe = pandas.read_csv('data/surveydata.csv')
-    # print(dataframe.describe())
     return HttpResponse(loader.get_template("paranoidApp/survey_complete.html").render({}, request))
 
 def create_survey(request):
