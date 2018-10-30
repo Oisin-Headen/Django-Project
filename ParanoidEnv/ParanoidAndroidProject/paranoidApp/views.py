@@ -76,6 +76,10 @@ def process_question(question_input, question):
     elif question['type'] == "numerical":
         try:
             value = int(question_input)
+            if question['min']:
+                assert value >= int(question['min'])
+            if question['max']:
+                assert value <= int(question['max'])
         except ValueError:
             raise AssertionError
         question_value = str(value)
@@ -165,6 +169,9 @@ def validate_questions(json_data):
         assert question['type'] in QUESTION_TYPES
         if question['type'] == "number_rating":
             assert int(question['max']) > int(question['min']), "Max is less than min"
+        elif question['type'] == "numerical":
+            if(question['max'] and question['min']):
+                assert int(question['max']) > int(question['min']), "Max is less than min"
         elif question['type'] == "dropdown" or question['type'] == "radio":
             assert question['choices']
         elif question['type'] == "boolean":

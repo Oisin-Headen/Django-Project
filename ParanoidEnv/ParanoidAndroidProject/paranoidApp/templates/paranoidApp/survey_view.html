@@ -57,7 +57,9 @@
         {% elif question.type == "email" %}
             <input type="email" name="{{survey.id}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}>
         {% elif question.type == "numerical" %}
-            <input type="number" name="{{survey.id}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}>
+            <input type="number" name="{{survey.id}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}
+            {% if question.min != None %}min="{{question.min}}"{% endif %}
+            {% if question.max != None %}max="{{question.max}}"{% endif %}>
         {% else %}
             <label>Error: could not display Q{{forloop.counter}}: {{question.text}}</label>
         {% endif %}
@@ -100,7 +102,9 @@
                             data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}">
                     {% elif subquestion.type == "numerical" %}
                         <input type="number" name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}"
-                            data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}">      
+                            data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}"
+                            {% if subquestion.min != None %}min="{{question.min}}"{% endif %}
+                            {% if subquestion.max != None %}max="{{question.max}}"{% endif %}>      
                     {% elif subquestion.type == "email" %}
                         <input type="email" name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}"
                             data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}">      

@@ -34,11 +34,22 @@ var question = [
 number_rating_extra = [
     "<div>",
         "<label>Minimum Number</label>",
-        "<input type=\"number\" class=\"minimum\" value=\"0\">",
+        "<input type=\"number\" class=\"minimum\" value=\"0\" required>",
     "</div>",
     "<div>",
         "<label>Maximum Number</label>",
-        "<input type=\"number\" class=\"maximum\" value=\"10\">",
+        "<input type=\"number\" class=\"maximum\" value=\"10\" required>",
+    "</div>"
+].join("\n");
+
+numerical_extra = [
+    "<div>",
+        "<label>Minimum Number</label>",
+        "<input type=\"number\" class=\"minimum\">",
+    "</div>",
+    "<div>",
+        "<label>Maximum Number</label>",
+        "<input type=\"number\" class=\"maximum\">",
     "</div>"
 ].join("\n");
 
@@ -86,6 +97,9 @@ $(document).ready(function () {
             if(type == "number_rating"){
                 $question_type_specific.append(number_rating_extra);
             }
+            if(type == "numerical"){
+                $question_type_specific.append(numerical_extra);
+            }
             else if(type == "radio" || type == "dropdown"){
                 $question_type_specific.append(multiple_choice_extra_start);
                 $question_type_specific.find(".options").append(multiple_choice_extra_option);
@@ -112,6 +126,9 @@ $(document).ready(function () {
                         var type = $(this).val();
                         if(type == "number_rating"){
                             $boolean_question_type_specific.append(number_rating_extra);
+                        }
+                        if(type == "numerical"){
+                            $boolean_question_type_specific.append(numerical_extra);
                         }
                         else if(type == "radio" || type == "dropdown"){
                             $boolean_question_type_specific.append(multiple_choice_extra_start);
@@ -152,6 +169,18 @@ $(document).ready(function () {
                 question_data['min'] = $(this).find(".minimum").val();
                 question_data['max'] = $(this).find(".maximum").val();
             }
+            if(question_type == "numerical"){
+                min = $(this).find(".minimum").val();
+                max = $(this).find(".maximum").val();
+                if(min != "")
+                {
+                    question_data['min'] = min;
+                }
+                if(max != "")
+                {
+                    question_data['max'] = max;
+                }
+            }
             else if(question_type == "radio" || question_type == "dropdown"){
                 var options = [];
                 $(this).find(".option-text").each(function(){
@@ -179,6 +208,18 @@ $(document).ready(function () {
                     if(subquestion_type == "number_rating"){
                         subquestion_data['min'] = $(this).find(".minimum").val();
                         subquestion_data['max'] = $(this).find(".maximum").val();
+                    }
+                    else if(subquestion_type == "numerical"){
+                        min = $(this).find(".minimum").val();
+                        max = $(this).find(".maximum").val();
+                        if(min != "")
+                        {
+                            subquestion_data['min'] = min;
+                        }
+                        if(max != "")
+                        {
+                            subquestion_data['max'] = max;
+                        }
                     }
                     else if(subquestion_type == "radio" || subquestion_type == "dropdown"){
                         var options = [];
