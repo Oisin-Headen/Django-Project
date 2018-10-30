@@ -55,7 +55,9 @@
             <input type="range" min="{{question.min}}" max="{{question.max}}" name="{{survey.id}}-{{forloop.counter}}" class="number-rating">
             <p class="number-rating-display"></p>
         {% elif question.type == "email" %}
-            <input type="email" name="{{survey.id}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}>      
+            <input type="email" name="{{survey.id}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}>
+        {% elif question.type == "numerical" %}
+            <input type="number" name="{{survey.id}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}>
         {% else %}
             <label>Error: could not display Q{{forloop.counter}}: {{question.text}}</label>
         {% endif %}
@@ -95,6 +97,9 @@
                     {% elif subquestion.type == "number_rating" %}
                         <input type="range" min="{{subquestion.min}}" max="{{subquestion.max}}" 
                             name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}"
+                            data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}">
+                    {% elif subquestion.type == "numerical" %}
+                        <input type="number" name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}"
                             data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}">      
                     {% elif subquestion.type == "email" %}
                         <input type="email" name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}"

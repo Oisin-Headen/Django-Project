@@ -21,6 +21,7 @@ var question = [
                 "<option value=\"boolean\">Yes or No</option>",
                 "<option value=\"radio\">Radio Buttons</option>",
                 "<option value=\"number_rating\">Numerical Range</option>",
+                "<option value=\"numerical\">Number</option>",
                 "<option value=\"email\">Email</option>",
             "</select>",
         "</div>",

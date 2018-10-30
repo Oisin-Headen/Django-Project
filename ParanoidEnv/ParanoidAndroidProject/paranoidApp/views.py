@@ -15,7 +15,8 @@ QUESTION_TYPES = {
     "boolean": "Yes or No",
     "radio": "Radio Buttons",
     "number_rating": "Numerical Range",
-    "email": "Email"
+    "email": "Email",
+    "numerical": "Number"
 }
 
 def index(request):
@@ -72,6 +73,13 @@ def process_question(question_input, question):
     elif question['type'] == "email":
         question_value = '"' + question_input.replace('"', '""') + '"'
 
+    elif question['type'] == "numerical":
+        try:
+            value = int(question_input)
+        except ValueError:
+            raise AssertionError
+        question_value = str(value)
+
     else:
         # The type doesn't match, should never happen
         raise AssertionError
@@ -96,7 +104,7 @@ def survey_post_data(request):
                 question_data_input = request.POST[str(survey_id)+"-"+str(i)]
                 list_entry += process_question(question_data_input, question)
             except AssertionError:
-                return HttpResponseRedirect("error")
+                return HttpResponseRedirect(reverse("error"))
 
             subquestions = []
             if "subquestions" in question:
@@ -207,6 +215,7 @@ def create_survey_post(request):
         if 'subquestions' in question.keys():
             for subquestion in question['subquestions']:
                 csv_header += ('"'+subquestion['column-name'].replace('"', '""')+'",')
+    csv_header = csv_header[:-1]
     answers_file_writing = open(answers_file, "w+")
     answers_file_writing.write(csv_header)
     answers_file_writing.close()
