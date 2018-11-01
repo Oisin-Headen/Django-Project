@@ -177,7 +177,7 @@ def validate_questions(json_data):
         if question['type'] == "number_rating":
             assert int(question['max']) > int(question['min']), "Max is less than min"
         elif question['type'] == "numerical":
-            if(question['max'] and question['min']):
+            if('max' in question.keys() and 'min' in question.keys()):
                 assert int(question['max']) > int(question['min']), "Max is less than min"
         elif question['type'] == "dropdown" or question['type'] == "radio":
             assert question['choices']
