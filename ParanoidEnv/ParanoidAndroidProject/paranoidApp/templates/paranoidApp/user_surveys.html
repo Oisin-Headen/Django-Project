@@ -1,0 +1,8 @@
+{% extends 'paranoidApp/base.html' %}
+
+{% block content %}
+    <h1>Your surveys:</h1>
+    {% for survey in surveys %}
+        <a href="{% url 'survey_data' survey.pk %}"><p>{{survey.survey_name}}</p></a>
+    {% endfor %}
+{% endblock %}

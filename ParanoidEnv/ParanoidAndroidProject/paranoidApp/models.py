@@ -14,4 +14,4 @@ class Survey(models.Model):
     """Model for the surveys"""
     survey_name = models.CharField(max_length=200)
     survey_desc = models.CharField(max_length=500)
-    # creator = models.ForeignKey(SurveyCreator, on_delete=models.CASCADE)
+    creator = models.ForeignKey(SurveyCreator, on_delete=models.CASCADE)

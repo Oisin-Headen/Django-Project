@@ -15,6 +15,9 @@ urlpatterns = [
     path('create-survey/post/', views.create_survey_post, name="create_survey_single_post"),
     path('survey-created/<int:survey_id>/', views.survey_created, name='survey_created'),
 
+    path('my-surveys/', views.view_surveys_for_user, name="surveys_for_user"),
+    path('my-surveys/<int:survey_id>/', views.view_survey_data, name="survey_data"),
+
     path('signup/', views.signup, name="signup"),
-    path('logout/', views.logout, name="logout")
+    path('logout/', views.logout, name="logout"),
 ]

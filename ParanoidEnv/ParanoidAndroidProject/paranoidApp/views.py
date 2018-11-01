@@ -1,6 +1,7 @@
 """This file contains the url method definitions for the app"""
 import json
 import os
+import csv
 # import pandas
 # import string
 from django.http import HttpResponse, HttpResponseRedirect
@@ -9,9 +10,11 @@ from django.urls import reverse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth import logout as django_logout
-from django.contrib.auth.decorators import login_required
 
-from .models import Survey
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+
+from .models import Survey, SurveyUser, SurveyCreator
 from .forms import SignUpForm
 
 QUESTION_TYPES = {
@@ -50,7 +53,6 @@ def view_survey(request, survey_id=-1):
     survey_data = {"survey":json_data}
     return HttpResponse(loader.get_template("paranoidApp/survey_view.html")
                         .render(survey_data, request))
-
 
 
 def process_question(question_input, question):
@@ -164,7 +166,6 @@ def create_survey(request):
     return HttpResponse(loader.get_template("paranoidApp/survey_creation_single_page.html")
                         .render({}, request))
 
-
 def validate_questions(json_data):
     """Handles possible validation of questions"""
     assert json_data['name']
@@ -197,6 +198,8 @@ def validate_questions(json_data):
                           subquestion['type'] == "radio"):
                         assert subquestion['choices']
 
+@login_required
+@require_POST
 def create_survey_post(request):
     """Post request for creating survey"""
     json_data = json.loads(request.POST['json'])
@@ -208,7 +211,8 @@ def create_survey_post(request):
         return HttpResponseRedirect(reverse("error"))
 
     database_entry = Survey(survey_name=json_data['name'],
-                            survey_desc=json_data['desc'])
+                            survey_desc=json_data['desc'],
+                            creator=SurveyCreator.objects.get(user=request.user.id))
     database_entry.save()
     survey_id = database_entry.pk
 
@@ -235,7 +239,6 @@ def create_survey_post(request):
 
     return HttpResponseRedirect(reverse("survey_created", kwargs={"survey_id": survey_id}))
 
-
 def survey_created(request, survey_id):
     """Survey has been created"""
     survey = Survey.objects.get(pk=survey_id)
@@ -243,6 +246,30 @@ def survey_created(request, survey_id):
                         .render({"surveyname":survey.survey_name,
                                  "surveydesc": survey.survey_desc}, request))
 
+@login_required
+def view_surveys_for_user(request):
+    """View a user's survey"""
+    surveys = Survey.objects.filter(creator=request.user.id)
+    return HttpResponse(loader.get_template("paranoidApp/user_surveys.html")
+                        .render({"surveys": surveys}, request))
+
+@login_required
+def view_survey_data(request, survey_id):
+    """View the responses for the survey"""
+    survey = get_object_or_404(Survey, pk=survey_id)
+    if survey.creator != request.user.id and not request.user.is_admin:
+        HttpResponseRedirect(reverse('error'))
+    current_folder = os.path.dirname(os.path.abspath(__file__))
+    file_name = os.path.join(current_folder, "data/survey" + str(survey_id) + ".csv")
+    file = open(file_name, "r")
+    csv_data = []
+    csv_reader = csv.reader(file)
+    for row in csv_reader:
+        csv_data.append(row)
+    file.close()
+
+    return HttpResponse(loader.get_template("paranoidApp/survey_data.html")
+                        .render({"data": csv_data}, request))
 
 def signup(request):
     """The Signup form"""
@@ -253,6 +280,8 @@ def signup(request):
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
+            creator = SurveyCreator(user=user)
+            creator.save()
             login(request, user)
             return redirect(reverse("index"))
     else:
@@ -263,4 +292,3 @@ def logout(request):
     """Logs a user out"""
     django_logout(request)
     return HttpResponseRedirect(reverse("index"))
-
