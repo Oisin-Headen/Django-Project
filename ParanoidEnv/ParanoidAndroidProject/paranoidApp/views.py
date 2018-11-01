@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth import logout as django_logout
+from django.contrib.auth.decorators import login_required
 
 from .models import Survey
 from .forms import SignUpForm
@@ -157,6 +158,7 @@ def survey_complete(request):
     """The survey was completed succsessfully"""
     return HttpResponse(loader.get_template("paranoidApp/survey_complete.html").render({}, request))
 
+@login_required
 def create_survey(request):
     """Create survey from a single page"""
     return HttpResponse(loader.get_template("paranoidApp/survey_creation_single_page.html")
