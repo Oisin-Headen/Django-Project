@@ -31,6 +31,11 @@
                             <li><a href="{% url "create_survey_single" %}" class="text-white">Create Survey</a></li>
                             <li><a href="{% url 'view_survey' %}" class="text-white">View Sample Survey</a></li>
                             <li><a href="{% url "admin:index" %}" class="text-white">Admin Menu</a></li>
+                            {% if request.user.is_authenticated %}
+                                <li><a href="{% url "logout" %}" class="text-white">Log Out {{request.user.username}}</a></li>
+                            {% else %}
+                                <li><a href="{% url "signup" %}" class="text-white">Sign Up</a></li>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>
@@ -41,6 +46,9 @@
                 <a href="#" class="navbar-brand d-flex align-items-center">
                     <strong>Survey_PA</strong>
                 </a>
+                {% if request.user.is_authenticated %}
+                    <p style="color:white">Welcome {{request.user.username}}</p>
+                {% endif %}
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader"
                         aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>

@@ -6,8 +6,12 @@ import os
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth import login, authenticate
+from django.contrib.auth import logout as django_logout
+
 from .models import Survey
+from .forms import SignUpForm
 
 QUESTION_TYPES = {
     "text": "Text",
@@ -236,3 +240,24 @@ def survey_created(request, survey_id):
     return HttpResponse(loader.get_template("paranoidApp/survey_created.html")
                         .render({"surveyname":survey.survey_name,
                                  "surveydesc": survey.survey_desc}, request))
+
+
+def signup(request):
+    """The Signup form"""
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect(reverse("index"))
+    else:
+        form = SignUpForm()
+    return render(request, 'paranoidApp/signup.html', {'form': form})
+
+def logout(request):
+    """Logs a user out"""
+    django_logout(request)
+    return HttpResponseRedirect(reverse("index"))
