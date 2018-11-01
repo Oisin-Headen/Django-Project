@@ -15,11 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.contrib.auth import views as auth_views
 
-from . import views
+# from . import views
 
 urlpatterns = [
     path('', include('paranoidApp.urls')),
     path('admin/', admin.site.urls),
+    path('login/', auth_views.LoginView.as_view(
+        template_name="paranoidApp/login.html",
+        redirect_field_name="index"), name='login'),
     # path('/', views.index)
 ]

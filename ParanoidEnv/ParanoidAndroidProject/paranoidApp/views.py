@@ -261,3 +261,4 @@ def logout(request):
     """Logs a user out"""
     django_logout(request)
     return HttpResponseRedirect(reverse("index"))
+
