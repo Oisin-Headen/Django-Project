@@ -30,7 +30,6 @@
                             <li><a href="{% url "index" %}" class="text-white">Home Page</a></li>
                             <li><a href="{% url "create_survey_single" %}" class="text-white">Create Survey</a></li>
                             <li><a href="{% url 'view_survey' %}" class="text-white">View Sample Survey</a></li>
-                            <li><a href="{% url "admin:index" %}" class="text-white">Admin Menu</a></li>
                             {% if request.user.is_authenticated %}
                                 <li><a href="{% url "logout" %}" class="text-white">Log Out {{request.user.username}}</a></li>
                             {% else %}
@@ -74,6 +73,7 @@
         <p>Survey_PA is &copy; ParanoidAndroid, created for our Programming Project - RMIT SP3-2018</p>
         <p>Project Contributors: Oisin, Mark, Simon, Josh and Brian</p>
         <p>Special Mentions: Mo</p>
+        <p><a href="{% url "admin:index" %}" class="text-white">Admin Menu</a></p>
     </div>
 </footer>
 
