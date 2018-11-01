@@ -25,7 +25,9 @@ SECRET_KEY = '4ltpd4@ih#&%153n1g%jn9z7(=*-sk_f#^prx^419zgr#_c)38'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "irishwrath.pythonanywhere.com"
+]
 
 AUTH_USER_MODEL = "paranoidApp.SurveyUser"
 
