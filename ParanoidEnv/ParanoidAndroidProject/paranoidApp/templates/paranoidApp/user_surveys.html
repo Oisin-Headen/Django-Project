@@ -3,6 +3,23 @@
 {% block content %}
     <h1>Your surveys:</h1>
     {% for survey in surveys %}
-        <a href="{% url 'survey_data' survey.pk %}"><p>{{survey.survey_name}}</p></a>
+        <p>
+            <a href="{% url 'survey_data' survey.pk %}">{{survey.survey_name}}</a>
+            <a class="delete-survey" href="{% url 'delete_survey' survey.pk %}">Delete</a>
+        </p>
     {% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function(){
+        $(".delete-survey").click(function(e){
+            e.preventDefault();
+            if(confirm("Are you sure you want to delete this survey?"))
+            {
+                window.location.replace($(this).attr("href"))
+            }
+        });
+    });
+</script>
 {% endblock %}

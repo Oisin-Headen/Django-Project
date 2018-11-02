@@ -20,4 +20,7 @@ urlpatterns = [
 
     path('signup/', views.signup, name="signup"),
     path('logout/', views.logout, name="logout"),
+
+    path('my-surveys/<int:survey_id>/delete/', views.delete_survey, name="delete_survey"),
+    path('survey-deleted/', views.survey_deleted, name="survey_deleted"),
 ]

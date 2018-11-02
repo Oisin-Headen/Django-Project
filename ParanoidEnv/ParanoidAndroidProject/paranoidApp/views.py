@@ -277,8 +277,10 @@ def view_surveys_for_user(request):
 def view_survey_data(request, survey_id):
     """View the responses for the survey"""
     survey = get_object_or_404(Survey, pk=survey_id)
-    if survey.creator != request.user.id and not request.user.is_admin:
-        HttpResponseRedirect(reverse('error'))
+    if survey.creator.pk != request.user.id and not request.user.is_admin:
+        messages.add_message(request, messages.ERROR,
+                             "You do not have permission to access this survey")
+        return HttpResponseRedirect(reverse('error'))
     current_folder = os.path.dirname(os.path.abspath(__file__))
     file_name = os.path.join(current_folder, "data/survey" + str(survey_id) + ".csv")
     file = open(file_name, "r")
@@ -312,3 +314,33 @@ def logout(request):
     """Logs a user out"""
     django_logout(request)
     return HttpResponseRedirect(reverse("index"))
+
+@login_required
+def delete_survey(request, survey_id):
+    """Delete a survey"""
+    survey = get_object_or_404(Survey, pk=survey_id)
+    if survey.creator.pk != request.user.id and not request.user.is_admin:
+        messages.add_message(request, messages.ERROR,
+                             "You do not have permission to access this survey")
+        return HttpResponseRedirect(reverse('error'))
+
+    current_folder = os.path.dirname(os.path.abspath(__file__))
+    csv_file_name = os.path.join(current_folder, "data/survey" + str(survey_id) + ".csv")
+    json_file_name = os.path.join(current_folder, "data/survey" + str(survey_id) + ".json")
+
+    try:
+        os.remove(csv_file_name)
+        os.remove(json_file_name)
+    except OSError:
+        messages.add_message(request, messages.ERROR,
+                             "Error: File not found. Some data may not have been deleted")
+        return HttpResponseRedirect(reverse('error'))
+    survey.delete()
+
+    # Redirect to survey deleted page
+    return HttpResponseRedirect(reverse('survey_deleted'))
+
+def survey_deleted(request):
+    """Tell the user that a survey has been deleted"""
+    return HttpResponse(loader.get_template("paranoidApp/survey_deleted.html")
+                        .render({},request))
