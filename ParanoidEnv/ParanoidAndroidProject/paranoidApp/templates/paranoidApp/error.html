@@ -2,7 +2,11 @@
 
 {% block content %}
 <h1>There was an error!</h1>
-<!-- <p>{{error}}</p> -->
+{% if messages %}
+    {% for message in messages %}
+        <p>{{message}}</p>
+    {% endfor %}
+{% endif %}
 
 <p><a href="{% url "index" %}">Home Page</a></p>
 {% endblock %}

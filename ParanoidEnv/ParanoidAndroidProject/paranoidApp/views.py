@@ -10,11 +10,12 @@ from django.urls import reverse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth import logout as django_logout
+from django.contrib import messages
 
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
-from .models import Survey, SurveyUser, SurveyCreator
+from .models import Survey, SurveyCreator
 from .forms import SignUpForm
 
 QUESTION_TYPES = {
@@ -58,15 +59,15 @@ def view_survey(request, survey_id=-1):
 def process_question(question_input, question):
     """Helper function to process a question"""
     if question_input == "":
-        assert question['optional'] is not None
+        assert question['optional'] is not None, "Didn't answer required question"
         question_value = "NA"
 
     elif question['type'] == "dropdown" or question['type'] == "radio":
-        assert question_input in question['choices']
+        assert question_input in question['choices'], "Not a valid dropdown choice"
         question_value = '"' + question_input.replace('"', '""') + '"'
 
     elif question['type'] == "boolean":
-        assert question_input in ["Yes", "No"]
+        assert question_input in ["Yes", "No"], "Did not answer yes or no"
         question_value = question_input
 
     elif question['type'] == "text":
@@ -74,21 +75,20 @@ def process_question(question_input, question):
 
     elif question['type'] == "number_rating":
         number = question_input
-        assert int(question['min']) <= int(number) <= int(question['max'])
+        assert int(question['min']) <= int(number) <= int(question['max']), (
+            "Number not in required range: "+str(question['min'])+" - "+str(question['max']))
         question_value = '"' + str(number).replace('"', '""') + '"'
 
     elif question['type'] == "email":
         question_value = '"' + question_input.replace('"', '""') + '"'
 
     elif question['type'] == "numerical":
-        try:
-            value = int(question_input)
-            if question['min']:
-                assert value >= int(question['min'])
-            if question['max']:
-                assert value <= int(question['max'])
-        except ValueError:
-            raise AssertionError
+        value = int(question_input)
+        if "min" in question.keys():
+            assert value >= int(question['min']), "Value below minimum"
+        if "max" in question.keys():
+            assert value <= int(question['max']), "Value above maximum"
+
         question_value = str(value)
 
     else:
@@ -97,11 +97,12 @@ def process_question(question_input, question):
 
     return question_value
 
+@require_POST
 def survey_post_data(request):
     """Take the posted data, validate, and store it"""
     try:
         survey_id = request.POST['survey-id']
-        # TODO possibly remove this test survey?
+        # TODO possibly remove the test survey?
         # ^ When test survey is generated on user command and added to the database
 
         current_folder = os.path.dirname(os.path.abspath(__file__))
@@ -114,7 +115,8 @@ def survey_post_data(request):
             try:
                 question_data_input = request.POST[str(survey_id)+"-"+str(i)]
                 list_entry += process_question(question_data_input, question)
-            except AssertionError:
+            except AssertionError as assert_failed:
+                messages.add_message(request, messages.ERROR, assert_failed.args[0])
                 return HttpResponseRedirect(reverse("error"))
 
             subquestions = []
@@ -135,9 +137,13 @@ def survey_post_data(request):
                     else:
                         try:
                             list_entry += process_question(subquestion_input, subquestion)
-                        except AssertionError:
+                        except AssertionError as assert_failed:
+                            messages.add_message(request, messages.ERROR, str(assert_failed))
                             return HttpResponseRedirect("error")
                 else:
+                    messages.add_message(
+                        request, messages.ERROR, 
+                        "Error: this boolean question has a subquestions field without an on field")
                     return HttpResponseRedirect("error")
 
                 if i != len(survey_stucture['questions']) or j != len(question['subquestions']):
@@ -148,12 +154,15 @@ def survey_post_data(request):
         data_file.close()
         return HttpResponseRedirect(reverse("survey_complete"))
 
-    except KeyError:
+    except KeyError as key_error:
+        messages.add_message(request, messages.ERROR, "A field could not be accessed: " + str(
+            key_error.args[0]))
         return HttpResponseRedirect(reverse("error"))
 
 
 def error(request):
     """An error occured somewhere"""
+    # error_message = request.session['error_message']
     return HttpResponse(loader.get_template("paranoidApp/error.html").render({}, request))
 
 def survey_complete(request):
@@ -168,35 +177,39 @@ def create_survey(request):
 
 def validate_questions(json_data):
     """Handles possible validation of questions"""
-    assert json_data['name']
-    assert json_data['desc']
+    assert json_data['name'], "No name provided"
+    assert json_data['desc'], "No description provided"
     for question in json_data['questions']:
-        assert question['text']
-        assert question['column-name']
-        assert question['type'] in QUESTION_TYPES
+        assert question['text'], "No text for question provided"
+        assert question['column-name'], "No name for question provided"
+        assert question['type'] in QUESTION_TYPES, "Question type does not exist"
         if question['type'] == "number_rating":
             assert int(question['max']) > int(question['min']), "Max is less than min"
         elif question['type'] == "numerical":
             if('max' in question.keys() and 'min' in question.keys()):
                 assert int(question['max']) > int(question['min']), "Max is less than min"
         elif question['type'] == "dropdown" or question['type'] == "radio":
-            assert question['choices']
+            assert question['choices'], "No choices provided"
         elif question['type'] == "boolean":
             if "on" in question.keys():
-                assert question['on'] in ["true", "false"]
+                assert question['on'] in ["true", "false"], "On field must be true or false"
                 # correcting this value to boolean, rather than text
                 question['on'] = question['on'] == "true"
-                assert question['subquestions']
+                assert question['subquestions'], "No subquestions provided"
                 for subquestion in question['subquestions']:
-                    assert subquestion['text']
-                    assert subquestion['column-name']
-                    assert subquestion['type'] in QUESTION_TYPES
+                    assert subquestion['text'], "No text for subquestion provided"
+                    assert subquestion['column-name'], "No name for subquestion provided"
+                    assert subquestion['type'] in QUESTION_TYPES, "Question type does not exist"
                     if subquestion['type'] == "number_rating":
                         assert (int(subquestion['max']) <
                                 int(subquestion['min'])), "Max is less than min"
+                    elif subquestion['type'] == "numerical":
+                        if('max' in subquestion.keys() and 'min' in subquestion.keys()):
+                            assert int(subquestion['max']) > int(
+                                subquestion['min']), "Max is less than min"
                     elif (subquestion['type'] == "dropdown" or
                           subquestion['type'] == "radio"):
-                        assert subquestion['choices']
+                        assert subquestion['choices'], "No choices provided"
 
 @login_required
 @require_POST
@@ -205,9 +218,13 @@ def create_survey_post(request):
     json_data = json.loads(request.POST['json'])
     try:
         validate_questions(json_data)
-
-    except (KeyError, AssertionError) as error_here:
-        print(error_here)
+    except KeyError as error_here:
+        messages.add_message(request, messages.ERROR, "A field could not be accessed: " + str(
+            error_here.args[0]))
+        return HttpResponseRedirect(reverse("error"))
+    except AssertionError as assertion_error:
+        messages.add_message(request, messages.ERROR, "Something went wrong: " + str(
+            assertion_error.args[0]))
         return HttpResponseRedirect(reverse("error"))
 
     database_entry = Survey(survey_name=json_data['name'],

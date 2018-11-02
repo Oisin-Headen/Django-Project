@@ -3,11 +3,23 @@
 {% block content %}
 <table>
     {% for row in data %}
-    <tr>
-        {% for col in row %}
-            <td>{{col}}</td>
-        {% endfor %}
-    </tr>
+        {% if forloop.counter == 1%}
+        <thead>
+            <th>
+                {% for col in row %}
+                    <td>{{col}}</td>
+                {% endfor %}
+            </th>
+        </thead>
+        <tbody>
+        {% else %}
+        <tr>
+            {% for col in row %}
+                <td>{{col}}</td>
+            {% endfor %}
+        </tr>
+        {% endif %}
     {% endfor %}
+        </tbody>
 </table>
 {% endblock %}
