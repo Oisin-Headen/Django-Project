@@ -266,7 +266,10 @@ def survey_created(request, survey_id):
 @login_required
 def view_surveys_for_user(request):
     """View a user's survey"""
-    surveys = Survey.objects.filter(creator=request.user.id)
+    if request.user.is_admin:
+        surveys = Survey.objects.all()
+    else:
+        surveys = Survey.objects.filter(creator=request.user.id)
     return HttpResponse(loader.get_template("paranoidApp/user_surveys.html")
                         .render({"surveys": surveys}, request))
 
