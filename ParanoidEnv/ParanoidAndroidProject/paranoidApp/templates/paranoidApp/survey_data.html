@@ -1,15 +1,24 @@
 {% extends 'paranoidApp/base.html' %}
 
+{% block head %}
+<style>
+    th, td{
+        padding: 5px;
+        border: 1px solid lightgray ;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <table>
     {% for row in data %}
         {% if forloop.counter == 1%}
         <thead>
-            <th>
+            <tr>
                 {% for col in row %}
-                    <td>{{col}}</td>
+                    <th>{{col}}</th>
                 {% endfor %}
-            </th>
+            </tr>
         </thead>
         <tbody>
         {% else %}
