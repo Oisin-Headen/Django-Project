@@ -286,7 +286,7 @@ def view_survey_data(request, survey_id):
     file.close()
 
     return HttpResponse(loader.get_template("paranoidApp/survey_data.html")
-                        .render({"data": csv_data}, request))
+                        .render({"data": csv_data, "name": survey.survey_name}, request))
 
 def signup(request):
     """The Signup form"""

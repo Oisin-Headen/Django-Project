@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block content %}
+<h1>Responses for Survey: {{name}}</h1>
 <table>
     {% for row in data %}
         {% if forloop.counter == 1%}
