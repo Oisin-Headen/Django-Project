@@ -73,6 +73,19 @@ for col in typedf:
 	plt.savefig(path + col.replace("?","") + '.svg')
 	plt.clf()
 
+##get the Dataframe of just the object columns
+objectdf = df.select_dtypes(exclude='number')
+days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 
+#cheack if any of the columns are days of the week columns then get averages for each day by numerical columns
+for obcol in objectdf:
+	result = all(elem in days for elem in objectdf[obcol])
+	if result:
+	
+		for col in typedf:
+			anotherlist = df.groupby(obcol).mean()[[col]]
+			with open(path + currentdt + '.csv', 'a') as myfile:
+				anotherlist.to_csv(myfile, header=True)
+				myfile.close()
 
 
