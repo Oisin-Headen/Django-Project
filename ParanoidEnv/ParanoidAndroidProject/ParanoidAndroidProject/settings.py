@@ -31,6 +31,7 @@ ALLOWED_HOSTS = [
 
 AUTH_USER_MODEL = "paranoidApp.SurveyUser"
 LOGIN_REDIRECT_URL = "/"
+LOGIN_URL = "/login/"
 
 # Application definition
 
