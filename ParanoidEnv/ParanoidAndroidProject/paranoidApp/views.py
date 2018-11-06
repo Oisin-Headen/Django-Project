@@ -4,7 +4,7 @@ import os
 import csv
 # import pandas
 # import string
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.template import loader
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, render, redirect
@@ -15,7 +15,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
-from .models import Survey, SurveyCreator
+from .models import Survey, SurveyCreator, SurveyUser
 from .forms import SignUpForm
 
 QUESTION_TYPES = {
@@ -112,12 +112,8 @@ def survey_post_data(request):
         survey_stucture = json.loads(open(survey_file, "r").read())
 
         for i, question in enumerate(survey_stucture['questions'], 1):
-            try:
-                question_data_input = request.POST[str(survey_id)+"-"+str(i)]
-                list_entry += process_question(question_data_input, question)
-            except AssertionError as assert_failed:
-                messages.add_message(request, messages.ERROR, assert_failed.args[0])
-                return HttpResponseRedirect(reverse("error"))
+            question_data_input = request.POST[str(survey_id)+"-"+str(i)]
+            list_entry += process_question(question_data_input, question)
 
             subquestions = []
             if "subquestions" in question:
@@ -133,16 +129,11 @@ def survey_post_data(request):
                     if (question_data_input == "Yes" and question['on'] is False
                        ) or (question_data_input == "No" and question['on'] is True):
                         list_entry += "NA"
-
                     else:
-                        try:
-                            list_entry += process_question(subquestion_input, subquestion)
-                        except AssertionError as assert_failed:
-                            messages.add_message(request, messages.ERROR, str(assert_failed))
-                            return HttpResponseRedirect("error")
+                        list_entry += process_question(subquestion_input, subquestion)
                 else:
                     messages.add_message(
-                        request, messages.ERROR, 
+                        request, messages.ERROR,
                         "Error: this boolean question has a subquestions field without an on field")
                     return HttpResponseRedirect("error")
 
@@ -157,6 +148,9 @@ def survey_post_data(request):
     except KeyError as key_error:
         messages.add_message(request, messages.ERROR, "A field could not be accessed: " + str(
             key_error.args[0]))
+        return HttpResponseRedirect(reverse("error"))
+    except AssertionError as assert_failed:
+        messages.add_message(request, messages.ERROR, assert_failed.args[0])
         return HttpResponseRedirect(reverse("error"))
 
 
@@ -338,9 +332,38 @@ def delete_survey(request, survey_id):
     survey.delete()
 
     # Redirect to survey deleted page
-    return HttpResponseRedirect(reverse('survey_deleted'))
+    return HttpResponseRedirect(reverse('surveys_for_user'))
 
 def survey_deleted(request):
     """Tell the user that a survey has been deleted"""
     return HttpResponse(loader.get_template("paranoidApp/survey_deleted.html")
-                        .render({},request))
+                        .render({}, request))
+
+@login_required
+def assign_admin_powers(request):
+    """Allow an admin to assign admin powers"""
+    if request.user.is_admin is False:
+        messages.add_message(request, messages.ERROR,
+                             "You do not have permission to access this page")
+        return HttpResponseRedirect(reverse('error'))
+    users = SurveyUser.objects.exclude(pk=request.user.pk)
+    return HttpResponse(loader.get_template("paranoidApp/admin_powers.html")
+                        .render({"users": users}, request))
+
+@require_POST
+@login_required
+def assign_admin_powers_post(request):
+    """Add admin powers to the selected user, then redirect the user back"""
+    if request.user.is_admin is False:
+        messages.add_message(request, messages.ERROR,
+                             "You do not have permission to assign admins")
+        return HttpResponseRedirect(reverse('error'))
+    try:
+        user = get_object_or_404(SurveyUser, pk=request.POST['user_id'])
+        user.is_admin = True
+        user.save()
+        return HttpResponseRedirect(reverse('assign_admin'))
+    except Http404:
+        messages.add_message(request, messages.ERROR,
+                             "That user does not exist")
+        return HttpResponseRedirect(reverse('error'))

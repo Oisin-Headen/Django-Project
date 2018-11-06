@@ -23,4 +23,7 @@ urlpatterns = [
 
     path('my-surveys/<int:survey_id>/delete/', views.delete_survey, name="delete_survey"),
     path('survey-deleted/', views.survey_deleted, name="survey_deleted"),
+
+    path('admins/', views.assign_admin_powers, name="assign_admin"),
+    path('admins/assign/', views.assign_admin_powers_post, name="assign_admin_post"),
 ]

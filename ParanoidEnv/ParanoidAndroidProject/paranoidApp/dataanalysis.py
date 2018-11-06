@@ -1,11 +1,12 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib import style
-import numpy as np
+"""Helper code to analyse survey data"""
 import pickle
 import datetime
 import os
 import csv
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib import style
+import numpy as np
 from textwrap import wrap
 style.use('ggplot')
 title_font = {'size':'8'}

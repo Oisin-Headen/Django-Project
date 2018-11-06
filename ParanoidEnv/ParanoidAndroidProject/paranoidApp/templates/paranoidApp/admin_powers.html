@@ -1,0 +1,30 @@
+{% extends 'paranoidApp/base.html' %}
+
+{% block content %}
+<h1>Assign Admin Powers</h1>
+<table>
+    <tr>
+        <th>Username</th>
+        <th>Is admin</th>
+        <th>Give Powers</th>
+    </tr>
+{% for user in users %}
+    <tr>
+        <td>{{user.username}}</td>
+        <td>{{user.is_admin}}</td>
+        <td>
+            {% if not user.is_admin %}
+            <form method="POST" action="{% url 'assign_admin_post' %}">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" value="{{user.pk}}">
+            <button class="assign-button" type="submit">Assign Admin</button>
+            </form>
+            {% endif %}
+        </td>
+    </tr>
+{% endfor %}
+</table>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
