@@ -1,8 +1,9 @@
 """Helper code to analyse survey data"""
 
-import pickle
+# import pickle
 import datetime
 import os
+import json
 from textwrap import wrap
 from matplotlib import style
 import matplotlib.pyplot as plt
@@ -17,10 +18,13 @@ def create_folder(directory):
     except OSError:
         print('Error: The folder wasn\'t able to be created:' + directory)
 
-def data_analytics(file_name):
+def data_analytics(file_name, survey_json_file):
     """Analyse some data from a file"""
     style.use('ggplot')
     title_font = {'size':'8'}
+ 
+    # Get the structure of the survey we're analysing
+    survey_stucture = json.loads(open(survey_json_file, "r").read())
 
     ##cleaning the current date time to be just a number to use as the file and folder names
     currentdatetime = str(datetime.datetime.now())
@@ -33,16 +37,17 @@ def data_analytics(file_name):
     create_folder(path)
 
     ##need to put code to recieve a file name instead of using the static sample data file
-    df = pd.read_csv(file_name)
+    data_frame = pd.read_csv(file_name)
 
 
     ##saving the dataframe as a pickle for its current state
-    pickle_out = open(path + currentdt + ".pickle","wb")
-    pickle.dump(df, pickle_out)
-    pickle_out.close()
+    # Oisín Notes: I don't think we need this, to store the pickle
+    # pickle_out = open(path + currentdt + ".pickle", "wb")
+    # pickle.dump(df, pickle_out)
+    # pickle_out.close()
 
     ##get numeric columns and save in a new DF to then loop through and get specific statistics
-    typedf = df.select_dtypes(include='number')
+    typedf = data_frame.select_dtypes(include='number')
 
     csv_data = "Question,Max,Min,Average,Median"
     for col in typedf:
@@ -82,16 +87,54 @@ def data_analytics(file_name):
     myfile.close()
 
     ##get the Dataframe of just the object columns
-    objectdf = df.select_dtypes(exclude='number')
+    objectdf = data_frame.select_dtypes(exclude='number')
     days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
-    # check if any of the columns are days of the week columns,
-	# then get averages for each day by numerical columns
-    for obcol in objectdf:
-        result = all(elem in days for elem in objectdf[obcol])
-        if result:
-            for col in typedf:
-                anotherlist = df.groupby(obcol).mean()[[col]]
-                with open(path + currentdt + '.csv', 'a') as myfile:
-                    anotherlist.to_csv(myfile, header=True)
-                    myfile.close()
+    # # check if any of the columns are days of the week columns,
+	# # then get averages for each day by numerical columns
+    # for obcol in objectdf:
+    #     result = all(elem in days for elem in objectdf[obcol])
+    #     if result:
+    #         for col in typedf:
+    #             anotherlist = data_frame.groupby(obcol).mean()[[col]]
+    #             with open(path + currentdt + '_per_dow.csv', 'a') as myfile:
+    #                 anotherlist.to_csv(myfile, header=True)
+    #                 myfile.close()
+
+    for question in survey_stucture["questions"]:
+        if (question["type"] == "radio" or
+                question["type"] == "dropdown"):
+            # Get this question's data
+            column_data = data_frame[question['column-name']]
+            new_labels = []
+            new_counts = []
+            for option in question["choices"]:
+                new_labels.append(option)
+                new_counts.append(column_data.str.count(option).sum())
+
+            num_items = np.arange(0, len(new_counts))
+
+            plt.bar(num_items, new_counts)
+            plt.xticks(num_items, new_labels, rotation="vertical")
+            plt.subplots_adjust(bottom=0.35)
+
+            plt.savefig(path + question["column-name"] + '.svg')
+            plt.clf()
+            plt.close()
+
+        if question["type"] == "boolean":
+            column_data = data_frame[question['column-name']]
+            new_counts = []
+            choices = ["Yes", "No"]
+            for option in choices:
+                new_counts.append(column_data.str.count(option).sum())
+
+            num_items = np.arange(0, len(new_counts))
+
+            plt.bar(num_items, new_counts)
+            plt.xticks(num_items, choices)
+            plt.subplots_adjust(bottom=0.35)
+
+            plt.savefig(path + question["column-name"] + '.svg')
+            plt.clf()
+            plt.close()

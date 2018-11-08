@@ -373,7 +373,8 @@ def assign_admin_powers_post(request):
 def analyse_data(request, survey_id=-1):
     """testing data analysis"""
     current_folder = os.path.dirname(os.path.abspath(__file__))
-    survey_info_file = os.path.join(current_folder, "data/survey" + str(survey_id) + ".json")
+    survey_json_file = os.path.join(current_folder, "data/survey" + str(survey_id) + ".json")
     survey_answers_file = os.path.join(current_folder, "data/survey"+ str(survey_id) +".csv")
-    data_analytics(survey_answers_file)
-    return HttpResponseRedirect(reverse("index"))
+    data_analytics(survey_answers_file, survey_json_file)
+    return HttpResponse(loader.get_template("paranoidApp/index.html")
+                        .render({}, request))
