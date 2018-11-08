@@ -17,6 +17,7 @@ from django.views.decorators.http import require_POST
 
 from .models import Survey, SurveyCreator, SurveyUser
 from .forms import SignUpForm
+from .dataanalysis import data_analytics
 
 QUESTION_TYPES = {
     "text": "Text",
@@ -367,3 +368,12 @@ def assign_admin_powers_post(request):
         messages.add_message(request, messages.ERROR,
                              "That user does not exist")
         return HttpResponseRedirect(reverse('error'))
+
+
+def analyse_data(request, survey_id=-1):
+    """testing data analysis"""
+    current_folder = os.path.dirname(os.path.abspath(__file__))
+    survey_info_file = os.path.join(current_folder, "data/survey" + str(survey_id) + ".json")
+    survey_answers_file = os.path.join(current_folder, "data/survey"+ str(survey_id) +".csv")
+    data_analytics(survey_answers_file)
+    return HttpResponseRedirect(reverse("index"))
