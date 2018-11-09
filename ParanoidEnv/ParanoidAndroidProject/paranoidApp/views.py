@@ -2,7 +2,7 @@
 import json
 import os
 import csv
-# import pandas
+import pandas
 # import string
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.template import loader
@@ -144,7 +144,9 @@ def survey_post_data(request):
         data_file = open(answers_file, "a")
         data_file.write(list_entry)
         data_file.close()
-        return HttpResponseRedirect(reverse("survey_complete"))
+        if int(survey_id) < 0:
+            return HttpResponseRedirect(reverse("survey_sample_complete"))
+        return HttpResponseRedirect(reverse("survey_complete", kwargs={"survey_id": survey_id}))
 
     except KeyError as key_error:
         messages.add_message(request, messages.ERROR, "A field could not be accessed: " + str(
@@ -160,9 +162,10 @@ def error(request):
     # error_message = request.session['error_message']
     return HttpResponse(loader.get_template("paranoidApp/error.html").render({}, request))
 
-def survey_complete(request):
+def survey_complete(request, survey_id=-1):
     """The survey was completed succsessfully"""
-    return HttpResponse(loader.get_template("paranoidApp/survey_complete.html").render({}, request))
+    return HttpResponse(loader.get_template("paranoidApp/survey_complete.html")
+                        .render({"id": survey_id}, request))
 
 @login_required
 def create_survey(request):
@@ -375,6 +378,43 @@ def analyse_data(request, survey_id=-1):
     current_folder = os.path.dirname(os.path.abspath(__file__))
     survey_json_file = os.path.join(current_folder, "data/survey" + str(survey_id) + ".json")
     survey_answers_file = os.path.join(current_folder, "data/survey"+ str(survey_id) +".csv")
-    data_analytics(survey_answers_file, survey_json_file)
-    return HttpResponse(loader.get_template("paranoidApp/index.html")
-                        .render({}, request))
+    static_path = data_analytics(survey_answers_file, survey_json_file, survey_id)
+
+    # Get csv data
+    survey_data = json.load(open(survey_json_file, "r"))
+
+    data_for_questions = []
+
+    data_frame = pandas.read_csv(current_folder + "/static/" + static_path +
+                                 "analytics.csv", index_col=["Question"])
+
+    for question in survey_data['questions']:
+        question_data = {}
+        if question["type"] in ["radio", "boolean", "dropdown"]:
+            question_data = {
+                "image_file": static_path + question["column-name"] + ".svg",
+                "question_text": question["text"],
+            }
+        elif question["type"] in ["number_rating", "numerical"]:
+            question_data = {
+                "image_file": static_path + question["column-name"] + ".svg",
+                "question_text": question["text"],
+                "extra": {
+                    "max": data_frame.loc[question['column-name'], "Max"],
+                    "min": data_frame.loc[question['column-name'], "Min"],
+                    "average": data_frame.loc[question['column-name'], "Average"],
+                    "median": data_frame.loc[question['column-name'], "Median"]
+                }
+            }
+        else:
+            question_data = {
+                "question_text": question["text"],
+            }
+
+        data_for_questions.append(question_data)
+
+    return HttpResponse(loader.get_template("paranoidApp/survey_analytics.html")
+                        .render({
+                            "questions": data_for_questions, 
+                            "survey_name": survey_data['name']
+                            }, request))

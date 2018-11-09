@@ -1,7 +1,6 @@
 """Helper code to analyse survey data"""
 
 # import pickle
-import datetime
 import os
 import json
 from textwrap import wrap
@@ -16,32 +15,33 @@ def create_folder(directory):
         if not os.path.exists(directory):
             os.makedirs(directory)
     except OSError:
-        print('Error: The folder wasn\'t able to be created:' + directory)
+        print('Error: The folder wasn\'t able to be created: ' + directory)
 
-def data_analytics(file_name, survey_json_file):
+def data_analytics(survey_csv_file, survey_json_file, survey_id):
     """Analyse some data from a file"""
     style.use('ggplot')
     title_font = {'size':'8'}
- 
+
     # Get the structure of the survey we're analysing
     survey_stucture = json.loads(open(survey_json_file, "r").read())
 
     ##cleaning the current date time to be just a number to use as the file and folder names
-    currentdatetime = str(datetime.datetime.now())
-    currentdatetime = currentdatetime.replace("-", "")
-    currentdatetime = currentdatetime.replace(":", "")
-    currentdatetime = currentdatetime.replace(".", "")
-    currentdt = currentdatetime.replace(" ", "")
-    path = os.path.dirname(os.path.abspath(__file__)) + "/data/analytics/" + currentdt + '/'
+    # currentdatetime = str(datetime.datetime.now())
+    # currentdatetime = currentdatetime.replace("-", "")
+    # currentdatetime = currentdatetime.replace(":", "")
+    # currentdatetime = currentdatetime.replace(".", "")
+    # currentdt = currentdatetime.replace(" ", "")
+    static_path = "paranoidApp/analytics/survey_" + str(survey_id) + "_data" + '/'
+    path = (os.path.dirname(os.path.abspath(__file__))
+            + "/static/" + static_path)
     ##creating the uniquely named folder to save all data to
     create_folder(path)
 
     ##need to put code to recieve a file name instead of using the static sample data file
-    data_frame = pd.read_csv(file_name)
+    data_frame = pd.read_csv(survey_csv_file)
 
 
     ##saving the dataframe as a pickle for its current state
-    # Oisín Notes: I don't think we need this, to store the pickle
     # pickle_out = open(path + currentdt + ".pickle", "wb")
     # pickle.dump(df, pickle_out)
     # pickle_out.close()
@@ -53,7 +53,7 @@ def data_analytics(file_name, survey_json_file):
     for col in typedf:
         ##making the templist to write to the csv file for this columns stats
         csv_data += "\n"
-        csv_data += str(col)+"," 
+        csv_data += str(col)+","
         csv_data += str(np.nanmax(typedf[col].values)) + ","
         csv_data += str(np.nanmin(typedf[col].values)) + ","
         csv_data += str(round(np.nanmean(typedf[col].values), 2)) + ","
@@ -72,23 +72,23 @@ def data_analytics(file_name, survey_json_file):
 
         plt.hist(typedf[col], np.arange(col_min, col_max+1)-0.5, histtype='bar', rwidth=0.8)
 
-        plt.xlabel('Rating', **title_font)
-        plt.ylabel('# of Responses', **title_font)
-        plt.title(("\n".join(wrap(col, 60))), **title_font)
+        # plt.xlabel('Rating', **title_font)
+        # plt.ylabel('# of Responses', **title_font)
+        # plt.title(("\n".join(wrap(col, 60))), **title_font)
         # plt.legend()
-        plt.savefig(path + col.replace("?", "") + '.svg')
+        plt.savefig(path + col + '.svg')
         plt.clf()
         plt.close()
 
-    with open(path + currentdt + '.csv', 'w+') as myfile:
+    with open(path + 'analytics.csv', 'w+') as myfile:
         # wr = csv.writer(myfile, quoting=csv.QUOTE_ALL, delimiter=',')
         # wr.write(csv_data)
         myfile.write(csv_data)
     myfile.close()
 
     ##get the Dataframe of just the object columns
-    objectdf = data_frame.select_dtypes(exclude='number')
-    days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    # objectdf = data_frame.select_dtypes(exclude='number')
+    # days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
     # # check if any of the columns are days of the week columns,
 	# # then get averages for each day by numerical columns
@@ -101,6 +101,7 @@ def data_analytics(file_name, survey_json_file):
     #                 anotherlist.to_csv(myfile, header=True)
     #                 myfile.close()
 
+    # Oisín notes: Added charts for Multiple choice questions and booleans
     for question in survey_stucture["questions"]:
         if (question["type"] == "radio" or
                 question["type"] == "dropdown"):
@@ -116,7 +117,7 @@ def data_analytics(file_name, survey_json_file):
 
             plt.bar(num_items, new_counts)
             plt.xticks(num_items, new_labels, rotation="vertical")
-            plt.subplots_adjust(bottom=0.35)
+            plt.tight_layout()
 
             plt.savefig(path + question["column-name"] + '.svg')
             plt.clf()
@@ -133,8 +134,10 @@ def data_analytics(file_name, survey_json_file):
 
             plt.bar(num_items, new_counts)
             plt.xticks(num_items, choices)
-            plt.subplots_adjust(bottom=0.35)
+            plt.tight_layout()
 
             plt.savefig(path + question["column-name"] + '.svg')
             plt.clf()
             plt.close()
+
+    return static_path

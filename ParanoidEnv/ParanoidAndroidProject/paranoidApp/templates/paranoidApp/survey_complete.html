@@ -2,6 +2,9 @@
 
 {% block content %}
 <h1>Survey answer saved</h1>
-
-<p><a href="{% url "index" %}">Home Page</a></p>
+{% if id != -1 %}
+    <h4><a href="{% url 'analyse_data' id %}">View Analytics</a></h4>
+{% else %}
+    <h4><a href="{% url 'analyse_data' %}">View Analytics</a></h4>
+{% endif %}
 {% endblock %}

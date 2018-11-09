@@ -8,7 +8,8 @@ urlpatterns = [
     path('view/<int:survey_id>/', views.view_survey, name='view_survey'),
     path('view/', views.view_survey, name='view_survey'),
     path('error/', views.error, name='error'),
-    path('view/results', views.survey_complete, name='survey_complete'),
+    path('view/<int:survey_id>/complete', views.survey_complete, name='survey_complete'),
+    path('view/sample/complete', views.survey_complete, name='survey_sample_complete'),
     path('view/response', views.survey_post_data, name='survey_post_data'),
 
     path('create-survey/', views.create_survey, name="create_survey_single"),
@@ -27,6 +28,6 @@ urlpatterns = [
     path('admins/', views.assign_admin_powers, name="assign_admin"),
     path('admins/assign/', views.assign_admin_powers_post, name="assign_admin_post"),
 
-    path('view/analytics', views.analyse_data, name="analyse_data"),
+    path('view/sample/analytics', views.analyse_data, name="analyse_data"),
     path('view/<int:survey_id>/analytics', views.analyse_data, name="analyse_data"),
 ]
