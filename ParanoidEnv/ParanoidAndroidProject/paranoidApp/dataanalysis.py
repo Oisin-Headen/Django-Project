@@ -32,7 +32,7 @@ def data_analytics(survey_csv_file, survey_json_file, survey_id):
     # currentdatetime = currentdatetime.replace(".", "")
     # currentdt = currentdatetime.replace(" ", "")
     static_path = "paranoidApp/analytics/survey_" + str(survey_id) + "_data" + '/'
-    path = (os.path.dirname(os.path.abspath(__file__))
+    path = (os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             + "/static/" + static_path)
     ##creating the uniquely named folder to save all data to
     create_folder(path)
