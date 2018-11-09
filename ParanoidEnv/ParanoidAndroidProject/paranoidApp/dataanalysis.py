@@ -3,7 +3,7 @@
 # import pickle
 import os
 import json
-from textwrap import wrap
+# from textwrap import wrap
 from matplotlib import style
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -20,7 +20,7 @@ def create_folder(directory):
 def data_analytics(survey_csv_file, survey_json_file, survey_id):
     """Analyse some data from a file"""
     style.use('ggplot')
-    title_font = {'size':'8'}
+    # title_font = {'size':'8'}
 
     # Get the structure of the survey we're analysing
     survey_stucture = json.loads(open(survey_json_file, "r").read())

@@ -1,0 +1,23 @@
+select {
+    overflow-y: auto;
+}
+
+section > label:first-child {
+    display: block;
+    background-color: rgb(100,100,100);
+    font-weight: bold;
+    font-size: 20px;
+    color: white;
+    margin-bottom: 10px;
+}
+
+section {
+    margin-bottom: 30px;
+}
+
+form {
+    background-color: rgb(240,240,240);
+}
+.number-rating-display{
+    display: inline-block;
+}

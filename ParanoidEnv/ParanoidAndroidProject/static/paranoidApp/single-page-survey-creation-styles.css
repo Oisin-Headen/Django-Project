@@ -1,0 +1,62 @@
+textarea{
+            vertical-align: top;
+        }
+        #add-question, #questions div{
+            border: 5px solid black;
+            margin-top: 5px;
+            padding: 10px;
+        }
+
+        #questions .question div{
+            border: none;
+            padding: 0;
+        }
+
+        #questions .question div .subquestion{
+            border: 3px solid black;
+            margin-top: 5px;
+            padding: 10px;
+        }
+
+        #add-question:hover{
+            border: 1px solid green;
+            background-color: aquamarine;
+            cursor: pointer;
+        }
+        .remove{
+            color: black;
+            border: 1px solid black;
+            text-align: center;
+        }
+        .remove:hover{
+            color: red;
+            cursor: pointer;
+        }
+        #add-question, #questions div.options div{
+            margin: 10px 0;
+            border: 1px solid black;
+            padding: 5px;
+        }
+        .remove-option{
+            color: black;
+            border: 1px solid black;
+            text-align: center;
+            display: inline-block;
+        }
+        .remove-option:hover{
+            color: red;
+            cursor: pointer;
+        }
+        .add-option, .add-subquestion{
+            margin: 10px 0;
+            border: 1px solid black;
+            padding: 3px;
+        }
+        .add-option:hover, .add-subquestion:hover{
+            border: 1px solid green;
+            background-color: aquamarine;
+            cursor: pointer;
+        }
+        #hidden-form{
+            display: none;
+        }
