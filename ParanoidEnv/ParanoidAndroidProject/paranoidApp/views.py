@@ -385,7 +385,7 @@ def analyse_data(request, survey_id=-1):
 
     data_for_questions = []
 
-    data_frame = pandas.read_csv(current_folder + "/static/" + static_path +
+    data_frame = pandas.read_csv(os.path.dirname(current_folder) + "/static/" + static_path +
                                  "analytics.csv", index_col=["Question"])
 
     for question in survey_data['questions']:
