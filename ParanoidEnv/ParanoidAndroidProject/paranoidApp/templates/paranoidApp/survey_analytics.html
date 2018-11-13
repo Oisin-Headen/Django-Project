@@ -4,11 +4,7 @@
 
 {% block head %}
 <style>
-    .box{
-        padding: 5px;
-        margin: 5px;
-        border: 2px solid gray;
-    }
+    
 </style>
 {% endblock %}
 
@@ -26,6 +22,22 @@
         {% endif %}
         {% if question.image_file is not None %}
             <img src="{% static question.image_file %}">
+        {% endif %}
+        {% if question.subquestions is not None %}
+            {% for subquestion in question.subquestions %}
+                <div class="box">
+                    <p><strong>Question {{forloop.parent.counter}}{{forloop.counter}}-:</strong> {{subquestion.question_text}}</p>
+                    {% if subquestion.extra is not None %}
+                        <p>Min: {{subquestion.extra.min}}</p>
+                        <p>Max: {{subquestion.extra.max}}</p>
+                        <p>Average: {{subquestion.extra.average}}</p>
+                        <p>Median: {{subquestion.extra.median}}</p>
+                    {% endif %}
+                    {% if subquestion.image_file is not None %}
+                        <img src="{% static subquestion.image_file %}">
+                    {% endif %}
+                </div>    
+            {% endfor %}
         {% endif %}
     </div>
 {% endfor %}

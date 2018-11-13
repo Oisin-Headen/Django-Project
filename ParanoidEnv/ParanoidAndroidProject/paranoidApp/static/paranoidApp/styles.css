@@ -31,3 +31,8 @@ td, th{
     border: 1px solid lightgray;
 }
 
+.box{
+    padding: 5px;
+    margin: 5px;
+    border: 2px solid gray;
+}

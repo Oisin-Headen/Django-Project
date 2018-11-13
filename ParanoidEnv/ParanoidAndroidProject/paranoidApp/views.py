@@ -124,19 +124,12 @@ def survey_post_data(request):
                 list_entry += ","
 
             for j, subquestion in enumerate(subquestions, 1):
-                subquestion_input = request.POST[str(survey_id)+"-"+str(i)+"-"+str(j)]
-
-                if question['on']:
-                    if (question_data_input == "Yes" and question['on'] is False
-                       ) or (question_data_input == "No" and question['on'] is True):
-                        list_entry += "NA"
-                    else:
-                        list_entry += process_question(subquestion_input, subquestion)
+                if (question_data_input == "Yes" and question['on'] is False
+                    ) or (question_data_input == "No" and question['on'] is True):
+                    list_entry += "NA"
                 else:
-                    messages.add_message(
-                        request, messages.ERROR,
-                        "Error: this boolean question has a subquestions field without an on field")
-                    return HttpResponseRedirect("error")
+                    list_entry += process_question(
+                        request.POST[str(survey_id)+"-"+str(i)+"-"+str(j)], subquestion)
 
                 if i != len(survey_stucture['questions']) or j != len(question['subquestions']):
                     list_entry += ","
@@ -177,6 +170,7 @@ def validate_questions(json_data):
     """Handles possible validation of questions"""
     assert json_data['name'], "No name provided"
     assert json_data['desc'], "No description provided"
+    assert json_data['questions'], "Surveys must contain at least one question"
     for question in json_data['questions']:
         assert question['text'], "No text for question provided"
         assert question['column-name'], "No name for question provided"
@@ -186,8 +180,10 @@ def validate_questions(json_data):
         elif question['type'] == "numerical":
             if('max' in question.keys() and 'min' in question.keys()):
                 assert int(question['max']) > int(question['min']), "Max is less than min"
-        elif question['type'] == "dropdown" or question['type'] == "radio":
+        elif question['type'] in ["dropdown", "radio"]:
             assert question['choices'], "No choices provided"
+            for choice in question['choices']:
+                assert choice, "Choices cannot be blank. Try adding spaces for empyt choice."
         elif question['type'] == "boolean":
             if "on" in question.keys():
                 assert question['on'] in ["true", "false"], "On field must be true or false"
@@ -378,6 +374,7 @@ def analyse_data(request, survey_id=-1):
     current_folder = os.path.dirname(os.path.abspath(__file__))
     survey_json_file = os.path.join(current_folder, "data/survey" + str(survey_id) + ".json")
     survey_answers_file = os.path.join(current_folder, "data/survey"+ str(survey_id) +".csv")
+
     static_path = data_analytics(survey_answers_file, survey_json_file, survey_id)
 
     # Get csv data
@@ -390,7 +387,7 @@ def analyse_data(request, survey_id=-1):
 
     for question in survey_data['questions']:
         question_data = {}
-        if question["type"] in ["radio", "boolean", "dropdown"]:
+        if question["type"] in ["radio", "dropdown"]:
             question_data = {
                 "image_file": static_path + question["column-name"] + ".svg",
                 "question_text": question["text"],
@@ -406,13 +403,43 @@ def analyse_data(request, survey_id=-1):
                     "median": data_frame.loc[question['column-name'], "Median"]
                 }
             }
+        elif (question["type"] == "boolean") and question['subquestions'] is not None:
+            subquestions = []
+            print("in this")
+            for subquestion_data in question['subquestions']:
+                if subquestion_data["type"] in ["radio", "boolean", "dropdown"]:
+                    subquestions.append({
+                        "image_file": static_path + subquestion_data["column-name"] + ".svg",
+                        "question_text": question["text"],
+                    })
+                elif subquestion_data["type"] in ["number_rating", "numerical"]:
+                    subquestions.append({
+                        "image_file": static_path + subquestion_data["column-name"] + ".svg",
+                        "question_text": question["text"],
+                        "extra": {
+                            "max": data_frame.loc[subquestion_data['column-name'], "Max"],
+                            "min": data_frame.loc[subquestion_data['column-name'], "Min"],
+                            "average": data_frame.loc[subquestion_data['column-name'], "Average"],
+                            "median": data_frame.loc[subquestion_data['column-name'], "Median"]
+                        }
+                    })
+                else:
+                    subquestions.append({
+                        "question_text": subquestion_data["text"],
+                    })
+            question_data = {
+                "image_file": static_path + question["column-name"] + ".svg",
+                "question_text": question["text"],
+                "subquestions": subquestions,
+            }
         else:
             question_data = {
                 "question_text": question["text"],
             }
-
+        
         data_for_questions.append(question_data)
-
+    print(data_for_questions)
+    print(survey_data['questions'])
     return HttpResponse(loader.get_template("paranoidApp/survey_analytics.html")
                         .render({
                             "questions": data_for_questions, 

@@ -9,10 +9,11 @@
         {% endif %}
     </h1>
     {% for survey in surveys %}
-        <p>
-            <a href="{% url 'survey_data' survey.pk %}">{{survey.survey_name}}</a>
-            <a class="delete-survey" href="{% url 'delete_survey' survey.pk %}">Delete</a>
-        </p>
+        <div class="box">
+            <p><a href="{% url 'survey_data' survey.pk %}">{{survey.survey_name}}</a></p>
+            <p><a href="{% url 'analyse_data' survey_id=survey.id %}">View Analytics</a></p>
+            <p><a class="delete-survey" href="{% url 'delete_survey' survey.pk %}">Delete</a></p>
+        </div>
     {% endfor %}
 {% endblock %}
 

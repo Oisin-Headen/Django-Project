@@ -43,7 +43,7 @@
                 id="Q{{forloop.counter}}A2" {% if question.optional == null %}required{% endif %}
                 {% if question.subquestions != null %}class="subquestions-mainquestion" 
                 data-subquestion-header="Q{{forloop.counter}}-subquestions"
-                data-on="{% if question.on == false %}True{% else %}False{% endif %}"{% endif %}>
+                data-on="{% if question.on == False %}True{% else %}False{% endif %}"{% endif %}>
             <label for="Q2A2">No</label>
         {% elif question.type == "radio" %}
             {% for choice in question.choices %}

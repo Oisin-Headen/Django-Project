@@ -103,41 +103,52 @@ def data_analytics(survey_csv_file, survey_json_file, survey_id):
 
     # Oisín notes: Added charts for Multiple choice questions and booleans
     for question in survey_stucture["questions"]:
-        if (question["type"] == "radio" or
-                question["type"] == "dropdown"):
-            # Get this question's data
-            column_data = data_frame[question['column-name']]
-            new_labels = []
-            new_counts = []
-            for option in question["choices"]:
-                new_labels.append(option)
-                new_counts.append(column_data.str.count(option).sum())
-
-            num_items = np.arange(0, len(new_counts))
-
-            plt.bar(num_items, new_counts)
-            plt.xticks(num_items, new_labels, rotation="vertical")
-            plt.tight_layout()
-
-            plt.savefig(path + question["column-name"] + '.svg')
-            plt.clf()
-            plt.close()
-
-        if question["type"] == "boolean":
-            column_data = data_frame[question['column-name']]
-            new_counts = []
-            choices = ["Yes", "No"]
-            for option in choices:
-                new_counts.append(column_data.str.count(option).sum())
-
-            num_items = np.arange(0, len(new_counts))
-
-            plt.bar(num_items, new_counts)
-            plt.xticks(num_items, choices)
-            plt.tight_layout()
-
-            plt.savefig(path + question["column-name"] + '.svg')
-            plt.clf()
-            plt.close()
+        graph_multiple_choice(question["type"], question, data_frame, path)
+        try:
+            for subquestion in question["subquestions"]:
+                graph_multiple_choice(subquestion["type"], subquestion, data_frame, path)
+        except KeyError:
+            pass
 
     return static_path
+
+
+def graph_multiple_choice(question_type, question, data_frame, path):
+    """Graphing multiple choice questions"""
+    if (question_type in ["radio", "dropdown"]):
+        # Get this question's data
+        column_data = data_frame[question["column-name"]]
+        new_labels = []
+        new_counts = []
+        for option in question["choices"]:
+            new_labels.append(option)
+            new_counts.append(column_data.str.count(option).sum())
+
+        num_items = np.arange(0, len(new_counts))
+
+        plt.bar(num_items, new_counts)
+        plt.xticks(num_items, new_labels, rotation="vertical")
+        plt.tight_layout()
+
+        # print >> sys.stderr, new_counts
+
+        plt.savefig(path + question["column-name"] + '.svg')
+        plt.clf()
+        plt.close()
+
+    if question_type == "boolean":
+        column_data = data_frame[question["column-name"]]
+        new_counts = []
+        choices = ["Yes", "No"]
+        for option in choices:
+            new_counts.append(column_data.str.count(option).sum())
+
+        num_items = np.arange(0, len(new_counts))
+
+        plt.bar(num_items, new_counts)
+        plt.xticks(num_items, choices)
+        plt.tight_layout()
+
+        plt.savefig(path + question["column-name"] + '.svg')
+        plt.clf()
+        plt.close()
