@@ -387,7 +387,8 @@ def analyse_data(request, survey_id=-1):
 
     for question in survey_data['questions']:
         question_data = {}
-        if question["type"] in ["radio", "dropdown"]:
+        if question["type"] in ["radio", "boolen", "dropdown"] and (
+                "subquestions" not in question.keys()):
             question_data = {
                 "image_file": static_path + question["column-name"] + ".svg",
                 "question_text": question["text"],
@@ -432,6 +433,7 @@ def analyse_data(request, survey_id=-1):
                 "question_text": question["text"],
                 "subquestions": subquestions,
             }
+            
         else:
             question_data = {
                 "question_text": question["text"],
