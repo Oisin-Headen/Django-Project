@@ -403,7 +403,7 @@ def analyse_data(request, survey_id=-1):
                     "median": data_frame.loc[question['column-name'], "Median"]
                 }
             }
-        elif (question["type"] == "boolean") and question['subquestions'] is not None:
+        elif (question["type"] == "boolean") and "subquestions" in question.keys():
             subquestions = []
             print("in this")
             for subquestion_data in question['subquestions']:
