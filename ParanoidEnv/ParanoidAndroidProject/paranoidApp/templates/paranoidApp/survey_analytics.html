@@ -26,7 +26,7 @@
         {% if question.subquestions is not None %}
             {% for subquestion in question.subquestions %}
                 <div class="box">
-                    <p><strong>Question {{forloop.parent.counter}}{{forloop.counter}}-:</strong> {{subquestion.question_text}}</p>
+                    <p><strong>Question {{forloop.parentloop.counter}}-{{forloop.counter}}:</strong> {{subquestion.question_text}}</p>
                     {% if subquestion.extra is not None %}
                         <p>Min: {{subquestion.extra.min}}</p>
                         <p>Max: {{subquestion.extra.max}}</p>

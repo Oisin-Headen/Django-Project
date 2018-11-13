@@ -410,12 +410,12 @@ def analyse_data(request, survey_id=-1):
                 if subquestion_data["type"] in ["radio", "boolean", "dropdown"]:
                     subquestions.append({
                         "image_file": static_path + subquestion_data["column-name"] + ".svg",
-                        "question_text": question["text"],
+                        "question_text": subquestion_data["text"],
                     })
                 elif subquestion_data["type"] in ["number_rating", "numerical"]:
                     subquestions.append({
                         "image_file": static_path + subquestion_data["column-name"] + ".svg",
-                        "question_text": question["text"],
+                        "question_text": subquestion_data["text"],
                         "extra": {
                             "max": data_frame.loc[subquestion_data['column-name'], "Max"],
                             "min": data_frame.loc[subquestion_data['column-name'], "Min"],
@@ -436,7 +436,7 @@ def analyse_data(request, survey_id=-1):
             question_data = {
                 "question_text": question["text"],
             }
-        
+
         data_for_questions.append(question_data)
     print(data_for_questions)
     print(survey_data['questions'])
