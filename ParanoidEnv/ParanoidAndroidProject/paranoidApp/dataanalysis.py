@@ -50,14 +50,13 @@ def data_analytics(survey_csv_file, survey_json_file, survey_id):
     for question in survey_stucture["questions"]:
         if question["type"] in ["numerical", "number_rating"]:
             numerical_columns.append(question["column-name"])
-            if "on" in question.keys():
-                for subquestion in question["subquestions"]:
-                    if subquestion["type"] in ["numerical", "number_rating"]:
-                        numerical_columns.append(subquestion["column-name"])
+        if "on" in question.keys():
+            for subquestion in question["subquestions"]:
+                if subquestion["type"] in ["numerical", "number_rating"]:
+                    numerical_columns.append(subquestion["column-name"])
 
     ##get numeric columns and save in a new DF to then loop through and get specific statistics
     typedf = data_frame[numerical_columns]   #.select_dtypes(include='number')
-
     csv_data = "Question,Max,Min,Average,Median"
     for col in typedf:
         ##making the templist to write to the csv file for this columns stats
