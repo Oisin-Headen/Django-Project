@@ -46,8 +46,17 @@ def data_analytics(survey_csv_file, survey_json_file, survey_id):
     # pickle.dump(df, pickle_out)
     # pickle_out.close()
 
+    numerical_columns = []
+    for question in survey_stucture["questions"]:
+        if question["type"] in ["numerical", "number_rating"]:
+            numerical_columns.append(question["column-name"])
+            if "on" in question.keys():
+                for subquestion in question["subquestions"]:
+                    if subquestion["type"] in ["numerical", "number_rating"]:
+                        numerical_columns.append(subquestion["column-name"])
+
     ##get numeric columns and save in a new DF to then loop through and get specific statistics
-    typedf = data_frame.select_dtypes(include='number')
+    typedf = data_frame[numerical_columns]   #.select_dtypes(include='number')
 
     csv_data = "Question,Max,Min,Average,Median"
     for col in typedf:
@@ -117,7 +126,8 @@ def graph_multiple_choice(question_type, question, data_frame, path):
     """Graphing multiple choice questions"""
     if (question_type in ["radio", "dropdown"]):
         # Get this question's data
-        column_data = data_frame[question["column-name"]]
+        column_data = data_frame[question["column-name"]].astype('str')
+        
         new_labels = []
         new_counts = []
         for option in question["choices"]:
@@ -130,14 +140,12 @@ def graph_multiple_choice(question_type, question, data_frame, path):
         plt.xticks(num_items, new_labels, rotation="vertical")
         plt.tight_layout()
 
-        # print >> sys.stderr, new_counts
-
         plt.savefig(path + question["column-name"] + '.svg')
         plt.clf()
         plt.close()
 
     if question_type == "boolean":
-        column_data = data_frame[question["column-name"]]
+        column_data = data_frame[question["column-name"]].astype('str')
         new_counts = []
         choices = ["Yes", "No"]
         for option in choices:

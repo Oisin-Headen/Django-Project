@@ -406,7 +406,6 @@ def analyse_data(request, survey_id=-1):
             }
         elif (question["type"] == "boolean") and "subquestions" in question.keys():
             subquestions = []
-            print("in this")
             for subquestion_data in question['subquestions']:
                 if subquestion_data["type"] in ["radio", "boolean", "dropdown"]:
                     subquestions.append({
@@ -440,8 +439,6 @@ def analyse_data(request, survey_id=-1):
             }
 
         data_for_questions.append(question_data)
-    print(data_for_questions)
-    print(survey_data['questions'])
     return HttpResponse(loader.get_template("paranoidApp/survey_analytics.html")
                         .render({
                             "questions": data_for_questions, 
