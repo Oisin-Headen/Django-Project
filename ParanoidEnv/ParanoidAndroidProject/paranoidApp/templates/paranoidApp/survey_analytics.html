@@ -22,6 +22,8 @@
         {% endif %}
         {% if question.image_file is not None %}
             <img src="{% static question.image_file %}">
+        {% else %}
+            <p>No image can be displayed for this question.</p>
         {% endif %}
         {% if question.subquestions is not None %}
             {% for subquestion in question.subquestions %}

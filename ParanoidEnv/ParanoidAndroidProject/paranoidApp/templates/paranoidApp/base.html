@@ -32,9 +32,9 @@
                             <li><a href="{% url 'create_survey_single' %}" class="text-white">Create Survey</a></li>
                             <li><a href="{% url 'surveys_for_user' %}" class="text-white">
                                 {% if request.user.is_admin %}
-                                View all Survey Data
+                                View All Raw Survey Data
                                 {% else %}
-                                View Survey Data
+                                View Raw Survey Data
                                 {% endif %}
                             </a></li>
                             {% if request.user.is_admin %}
