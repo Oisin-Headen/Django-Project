@@ -463,16 +463,10 @@ def analyse_data(request, survey_id=-1):
                                 "questions": data_for_questions, 
                                 "survey_name": survey_data['name']
                                 }, request))
-    except Http404:
+    except (Http404, FileNotFoundError):
         messages.add_message(request, messages.ERROR,
                              "Error accessing database. This survey does not exist.\n" +
-                             "It may have been deleted by the owner or an admin")
-        return HttpResponseRedirect(reverse("error"))
-    except FileNotFoundError:
-        messages.add_message(request, messages.ERROR,
-                             "Error accessing file. " +
-                             "This survey has been deleted or created improperly.\n" +
-                             "If you own this survey, contact the site owner for assistance")
+                             "It may have been deleted by the owner or an admin.")
         return HttpResponseRedirect(reverse("error"))
     except ValueError:
         messages.add_message(request, messages.ERROR,
