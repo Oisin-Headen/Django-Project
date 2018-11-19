@@ -37,7 +37,7 @@ td, th{
     border: 2px solid gray;
 }
 
-.required-marker{
+.required-marker, .survey-error{
     color: red;
     text-emphasis: bold;
 }
