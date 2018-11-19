@@ -59,7 +59,8 @@ def view_survey(request, survey_id=-1):
         return HttpResponseRedirect(reverse("error"))
     except FileNotFoundError:
         messages.add_message(request, messages.ERROR,
-                             "Error accessing file. This survey has been deleted improperly.\n" +
+                             "Error accessing file. " +
+                             "This survey has been deleted or created improperly.\n" +
                              "If you own this survey, contact the site owner for assistance")
         return HttpResponseRedirect(reverse("error"))
     except ValueError:
@@ -469,7 +470,8 @@ def analyse_data(request, survey_id=-1):
         return HttpResponseRedirect(reverse("error"))
     except FileNotFoundError:
         messages.add_message(request, messages.ERROR,
-                             "Error accessing file. This survey has been deleted improperly.\n" +
+                             "Error accessing file. " +
+                             "This survey has been deleted or created improperly.\n" +
                              "If you own this survey, contact the site owner for assistance")
         return HttpResponseRedirect(reverse("error"))
     except ValueError:
