@@ -12,7 +12,15 @@
 
 {% block content %}
 
-<p><a href="{% url "index" %}">Home Page</a></p>
+<p>
+    Please note: All responses will be recorded and used for analytical purposes. 
+    Analytics for this survey can be viewed by anyone here: 
+    {% if survey.id == -1 %}
+        <a href="{% url 'analyse_data' %}">Analytics</a>
+    {% else %}
+        <a href="{% url 'analyse_data' survey.id %}">Analytics</a>
+    {% endif %}
+</p>
 
 <h1>{{survey.name}}</h1>
 

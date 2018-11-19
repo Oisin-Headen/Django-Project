@@ -3,6 +3,7 @@
 # import pickle
 import os
 import json
+import re
 # from textwrap import wrap
 from matplotlib import style
 import matplotlib.pyplot as plt
@@ -126,12 +127,12 @@ def graph_multiple_choice(question_type, question, data_frame, path):
     if (question_type in ["radio", "dropdown"]):
         # Get this question's data
         column_data = data_frame[question["column-name"]].astype('str')
-        
+
         new_labels = []
         new_counts = []
         for option in question["choices"]:
             new_labels.append(option)
-            new_counts.append(column_data.str.count(option).sum())
+            new_counts.append(column_data.str.count("^" + re.escape(option) + "$").sum())
 
         num_items = np.arange(0, len(new_counts))
 

@@ -41,17 +41,33 @@ def index(request):
 def view_survey(request, survey_id=-1):
     """View and respond to a survey.
     Currently only views the hard-coded sample survey"""
-    if survey_id == -1:
-        file_name = "data/survey-1.json"
-    else:
-        survey = get_object_or_404(Survey, pk=survey_id)
-        file_name = "data/survey" + str(survey.pk) + ".json"
+    try:
+        if survey_id == -1:
+            file_name = "data/survey-1.json"
+        else:
+            survey = get_object_or_404(Survey, pk=survey_id)
+            file_name = "data/survey" + str(survey.pk) + ".json"
 
-    current_folder = os.path.dirname(os.path.abspath(__file__))
-    file = open(os.path.join(current_folder, file_name), "r")
+        current_folder = os.path.dirname(os.path.abspath(__file__))
+        file = open(os.path.join(current_folder, file_name), "r")
+        json_data = json.loads(file.read())
+        json_data['id'] = survey_id
+    except Http404:
+        messages.add_message(request, messages.ERROR,
+                             "Error accessing database. This survey does not exist.\n" +
+                             "It may have been deleted by the owner or an admin")
+        return HttpResponseRedirect(reverse("error"))
+    except FileNotFoundError:
+        messages.add_message(request, messages.ERROR,
+                             "Error accessing file. This survey has been deleted improperly.\n" +
+                             "If you own this survey, contact the site owner for assistance")
+        return HttpResponseRedirect(reverse("error"))
+    except ValueError:
+        messages.add_message(request, messages.ERROR,
+                             "Error accessing file. This survey may have been corrupted.\n" +
+                             "If you own this survey, contact the site owner for assistance")
+        return HttpResponseRedirect(reverse("error"))
 
-    json_data = json.loads(file.read())
-    json_data['id'] = survey_id
     survey_data = {"survey":json_data}
     return HttpResponse(loader.get_template("paranoidApp/survey_view.html")
                         .render(survey_data, request))
@@ -125,7 +141,7 @@ def survey_post_data(request):
 
             for j, subquestion in enumerate(subquestions, 1):
                 if (question_data_input == "Yes" and question['on'] is False
-                    ) or (question_data_input == "No" and question['on'] is True):
+                   ) or (question_data_input == "No" and question['on'] is True):
                     list_entry += "NA"
                 else:
                     list_entry += process_question(
@@ -375,72 +391,89 @@ def analyse_data(request, survey_id=-1):
     survey_json_file = os.path.join(current_folder, "data/survey" + str(survey_id) + ".json")
     survey_answers_file = os.path.join(current_folder, "data/survey"+ str(survey_id) +".csv")
 
-    static_path = data_analytics(survey_answers_file, survey_json_file, survey_id)
+    try:
+        static_path = data_analytics(survey_answers_file, survey_json_file, survey_id)
 
-    # Get csv data
-    survey_data = json.load(open(survey_json_file, "r"))
+        # Get csv data
+        survey_data = json.load(open(survey_json_file, "r"))
 
-    data_for_questions = []
+        data_for_questions = []
 
-    data_frame = pandas.read_csv(os.path.dirname(current_folder) + "/static/" + static_path +
-                                 "analytics.csv", index_col=["Question"])
-
-    for question in survey_data['questions']:
-        question_data = {}
-        if question["type"] in ["radio", "boolean", "dropdown"] and (
-                "subquestions" not in question.keys()):
-            question_data = {
-                "image_file": static_path + question["column-name"] + ".svg",
-                "question_text": question["text"],
-            }
-        elif question["type"] in ["number_rating", "numerical"]:
-            question_data = {
-                "image_file": static_path + question["column-name"] + ".svg",
-                "question_text": question["text"],
-                "extra": {
-                    "max": data_frame.loc[question['column-name'], "Max"],
-                    "min": data_frame.loc[question['column-name'], "Min"],
-                    "average": data_frame.loc[question['column-name'], "Average"],
-                    "median": data_frame.loc[question['column-name'], "Median"]
+        data_frame = pandas.read_csv(os.path.dirname(current_folder) + "/static/" + static_path +
+                                    "analytics.csv", index_col=["Question"])
+    
+        for question in survey_data['questions']:
+            question_data = {}
+            if question["type"] in ["radio", "boolean", "dropdown"] and (
+                    "subquestions" not in question.keys()):
+                question_data = {
+                    "image_file": static_path + question["column-name"] + ".svg",
+                    "question_text": question["text"],
                 }
-            }
-        elif (question["type"] == "boolean") and "subquestions" in question.keys():
-            subquestions = []
-            for subquestion_data in question['subquestions']:
-                if subquestion_data["type"] in ["radio", "boolean", "dropdown"]:
-                    subquestions.append({
-                        "image_file": static_path + subquestion_data["column-name"] + ".svg",
-                        "question_text": subquestion_data["text"],
-                    })
-                elif subquestion_data["type"] in ["number_rating", "numerical"]:
-                    subquestions.append({
-                        "image_file": static_path + subquestion_data["column-name"] + ".svg",
-                        "question_text": subquestion_data["text"],
-                        "extra": {
-                            "max": data_frame.loc[subquestion_data['column-name'], "Max"],
-                            "min": data_frame.loc[subquestion_data['column-name'], "Min"],
-                            "average": data_frame.loc[subquestion_data['column-name'], "Average"],
-                            "median": data_frame.loc[subquestion_data['column-name'], "Median"]
-                        }
-                    })
-                else:
-                    subquestions.append({
-                        "question_text": subquestion_data["text"],
-                    })
-            question_data = {
-                "image_file": static_path + question["column-name"] + ".svg",
-                "question_text": question["text"],
-                "subquestions": subquestions,
-            }
-            
-        else:
-            question_data = {
-                "question_text": question["text"],
-            }
+            elif question["type"] in ["number_rating", "numerical"]:
+                question_data = {
+                    "image_file": static_path + question["column-name"] + ".svg",
+                    "question_text": question["text"],
+                    "extra": {
+                        "max": data_frame.loc[question['column-name'], "Max"],
+                        "min": data_frame.loc[question['column-name'], "Min"],
+                        "average": data_frame.loc[question['column-name'], "Average"],
+                        "median": data_frame.loc[question['column-name'], "Median"]
+                    }
+                }
+            elif (question["type"] == "boolean") and "subquestions" in question.keys():
+                subquestions = []
+                for subquestion_data in question['subquestions']:
+                    if subquestion_data["type"] in ["radio", "boolean", "dropdown"]:
+                        subquestions.append({
+                            "image_file": static_path + subquestion_data["column-name"] + ".svg",
+                            "question_text": subquestion_data["text"],
+                        })
+                    elif subquestion_data["type"] in ["number_rating", "numerical"]:
+                        subquestions.append({
+                            "image_file": static_path + subquestion_data["column-name"] + ".svg",
+                            "question_text": subquestion_data["text"],
+                            "extra": {
+                                "max": data_frame.loc[subquestion_data['column-name'], "Max"],
+                                "min": data_frame.loc[subquestion_data['column-name'], "Min"],
+                                "average": data_frame.loc[subquestion_data['column-name'],
+                                                          "Average"],
+                                "median": data_frame.loc[subquestion_data['column-name'], "Median"]
+                            }
+                        })
+                    else:
+                        subquestions.append({
+                            "question_text": subquestion_data["text"],
+                        })
+                question_data = {
+                    "image_file": static_path + question["column-name"] + ".svg",
+                    "question_text": question["text"],
+                    "subquestions": subquestions,
+                }
 
-        data_for_questions.append(question_data)
-    return HttpResponse(loader.get_template("paranoidApp/survey_analytics.html")
-                        .render({
-                            "questions": data_for_questions, 
-                            "survey_name": survey_data['name']
-                            }, request))
+            else:
+                question_data = {
+                    "question_text": question["text"],
+                }
+
+            data_for_questions.append(question_data)
+        return HttpResponse(loader.get_template("paranoidApp/survey_analytics.html")
+                            .render({
+                                "questions": data_for_questions, 
+                                "survey_name": survey_data['name']
+                                }, request))
+    except Http404:
+        messages.add_message(request, messages.ERROR,
+                             "Error accessing database. This survey does not exist.\n" +
+                             "It may have been deleted by the owner or an admin")
+        return HttpResponseRedirect(reverse("error"))
+    except FileNotFoundError:
+        messages.add_message(request, messages.ERROR,
+                             "Error accessing file. This survey has been deleted improperly.\n" +
+                             "If you own this survey, contact the site owner for assistance")
+        return HttpResponseRedirect(reverse("error"))
+    except ValueError:
+        messages.add_message(request, messages.ERROR,
+                             "Error accessing file. This survey may have been corrupted.\n" +
+                             "If you own this survey, contact the site owner for assistance")
+        return HttpResponseRedirect(reverse("error"))
