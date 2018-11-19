@@ -9,16 +9,16 @@
 {% endblock %}
 
 {% block content %}
-<h1>Analytics for {{survey_name}}</h1>
+<h1>Analytics for {{ survey_name} }</h1>
 
 {% for question in questions %}
     <div class="box">
-        <p><strong>Question {{forloop.counter}}:</strong> {{question.question_text}}</p>
+        <p><strong>Question {{ forloop.counter }}:</strong> {{ question.question_text }}</p>
         {% if question.extra is not None %}
-            <p>Min: {{question.extra.min}}</p>
-            <p>Max: {{question.extra.max}}</p>
-            <p>Average: {{question.extra.average}}</p>
-            <p>Median: {{question.extra.median}}</p>
+            <p>Min: {{ question.extra.min }}</p>
+            <p>Max: {{ question.extra.max }}</p>
+            <p>Average: {{ question.extra.average }}</p>
+            <p>Median: {{ question.extra.median }}</p>
         {% endif %}
         {% if question.image_file is not None %}
             <img src="{% static question.image_file %}">
@@ -28,12 +28,12 @@
         {% if question.subquestions is not None %}
             {% for subquestion in question.subquestions %}
                 <div class="box">
-                    <p><strong>Question {{forloop.parentloop.counter}}-{{forloop.counter}}:</strong> {{subquestion.question_text}}</p>
+                    <p><strong>Question {{ forloop.parentloop.counter }}-{{ forloop.counter }}:</strong> {{ subquestion.question_text }}</p>
                     {% if subquestion.extra is not None %}
-                        <p>Min: {{subquestion.extra.min}}</p>
-                        <p>Max: {{subquestion.extra.max}}</p>
-                        <p>Average: {{subquestion.extra.average}}</p>
-                        <p>Median: {{subquestion.extra.median}}</p>
+                        <p>Min: {{ subquestion.extra.min }}</p>
+                        <p>Max: {{ subquestion.extra.max }}</p>
+                        <p>Average: {{ subquestion.extra.average }}</p>
+                        <p>Median: {{ subquestion.extra.median }}</p>
                     {% endif %}
                     {% if subquestion.image_file is not None %}
                         <img src="{% static subquestion.image_file %}">

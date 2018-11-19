@@ -12,7 +12,7 @@
 </div>
 {% for survey in surveys %}
     <div class="box">
-        <h3><a href="{% url 'view_survey' survey_id=survey.id %}">{{survey.name}}</a></h3>
+        <h3><a href="{% url 'view_survey' survey_id=survey.id %}">{{ survey.name }}</a></h3>
         <p><a href="{% url 'analyse_data' survey_id=survey.id %}">View Analytics</a></p>
     </div>
 {% endfor %}

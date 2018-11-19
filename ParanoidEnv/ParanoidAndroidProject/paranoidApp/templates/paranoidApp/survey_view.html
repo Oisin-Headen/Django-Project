@@ -22,99 +22,99 @@
     {% endif %}
 </p>
 
-<h1>{{survey.name}}</h1>
+<h1>{{ survey.name }}</h1>
 
-<h2>{{survey.desc}}</h2>
+<h2>{{ survey.desc }}</h2>
 
 <form method="POST" action="{% url 'survey_post_data' %}">
 {% csrf_token %}
-<input type="hidden" value="{{survey.id}}" name="survey-id">
+<input type="hidden" value="{{ survey.id }}" name="survey-id">
 {% for question in survey.questions %}
     <section>
-        <label>Q{{forloop.counter}}: {{question.text}} {% if not question.optional %}<span class="required-marker">*</span>{% endif %}</label>
+        <label>Q{{ forloop.counter }}: {{ question.text }} {% if not question.optional %}<span class="required-marker">*</span>{% endif %}</label>
         {% if question.type == "text" %}
-            <textarea name="{{survey.id}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}></textarea>
+            <textarea name="{{ survey.id }}-{{ forloop.counter }}" {% if question.optional == null %}required{% endif %}></textarea>
         {% elif question.type == "dropdown" %}
-            <select name="{{survey.id}}-{{forloop.counter}}">
+            <select name="{{ survey.id }}-{{ forloop.counter }}">
                 {% for choice in question.choices %}
-                    <option>{{choice}}</option>
+                    <option>{{ choice }}</option>
                 {% endfor %}
             </select>
         {% elif question.type == "boolean" %}
-            <input type="radio" name="{{survey.id}}-{{forloop.counter}}" value="Yes" 
-                id="Q{{forloop.counter}}A1" {% if question.optional == null %}required{% endif %}
+            <input type="radio" name="{{ survey.id }}-{{ forloop.counter }}" value="Yes" 
+                id="Q{{ forloop.counter }}A1" {% if question.optional == null %}required{% endif %}
                 {% if question.subquestions != null %}class="subquestions-mainquestion" 
-                data-subquestion-header="Q{{forloop.counter}}-subquestions"
-                data-on="{{question.on}}"{% endif %}>
+                data-subquestion-header="Q{{ forloop.counter }}-subquestions"
+                data-on="{{ question.on }}"{% endif %}>
             <label for="Q2A1">Yes</label>
-            <input type="radio" name="{{survey.id}}-{{forloop.counter}}" value="No" 
-                id="Q{{forloop.counter}}A2" {% if question.optional == null %}required{% endif %}
+            <input type="radio" name="{{ survey.id }}-{{ forloop.counter }}" value="No" 
+                id="Q{{ forloop.counter }}A2" {% if question.optional == null %}required{% endif %}
                 {% if question.subquestions != null %}class="subquestions-mainquestion" 
-                data-subquestion-header="Q{{forloop.counter}}-subquestions"
+                data-subquestion-header="Q{{ forloop.counter }}-subquestions"
                 data-on="{% if question.on == False %}True{% else %}False{% endif %}"{% endif %}>
             <label for="Q2A2">No</label>
         {% elif question.type == "radio" %}
             {% for choice in question.choices %}
-                <input type="radio" name="{{survey.id}}-{{forloop.parentloop.counter}}" value="{{choice}}" 
-                    id="Q{{forloop.parentloop.counter}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}>
-                <label for="Q{{forloop.parentloop.counter}}-{{forloop.counter}}">{{choice}}</label>
+                <input type="radio" name="{{ survey.id }}-{{ forloop.parentloop.counter }}" value="{{ choice }}" 
+                    id="Q{{ forloop.parentloop.counter }}-{{ forloop.counter }}" {% if question.optional == null %}required{% endif %}>
+                <label for="Q{{ forloop.parentloop.counter }}-{{ forloop.counter }}">{{ choice }}</label>
             {% endfor %}
         {% elif question.type == "number_rating" %}
-            <input type="range" min="{{question.min}}" max="{{question.max}}" name="{{survey.id}}-{{forloop.counter}}" class="number-rating">
+            <input type="range" min="{{ question.min }}" max="{{ question.max }}" name="{{ survey.id }}-{{ forloop.counter }}" class="number-rating">
             <p class="number-rating-display"></p>
         {% elif question.type == "email" %}
-            <input type="email" name="{{survey.id}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}>
+            <input type="email" name="{{ survey.id }}-{{ forloop.counter }}" {% if question.optional == null %}required{% endif %}>
         {% elif question.type == "numerical" %}
-            <input type="number" name="{{survey.id}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}
-            {% if question.min != None %}min="{{question.min}}"{% endif %}
-            {% if question.max != None %}max="{{question.max}}"{% endif %}>
+            <input type="number" name="{{ survey.id }}-{{ forloop.counter }}" {% if question.optional == null %}required{% endif %}
+            {% if question.min != None %}min="{{ question.min }}"{% endif %}
+            {% if question.max != None %}max="{{ question.max }}"{% endif %}>
         {% else %}
-            <label>Error: could not display Q{{forloop.counter}}: {{question.text}}</label>
+            <label>Error: could not display Q{{ forloop.counter }}: {{ question.text }}</label>
         {% endif %}
 
 
         {% if question.subquestions != null %}
-            <section class="Q{{forloop.counter}}-subquestions subquestions">
+            <section class="Q{{ forloop.counter }}-subquestions subquestions">
             {% for subquestion in question.subquestions %}
                 <div>
-                    <label>Q{{forloop.parentloop.counter}}.{{forloop.counter}}: {{subquestion.text}}</label>
+                    <label>Q{{ forloop.parentloop.counter }}.{{ forloop.counter }}: {{ subquestion.text }}</label>
                     {% if subquestion.type == "text" %}
-                        <textarea name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}" 
+                        <textarea name="{{ survey.id }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" 
                             data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}"></textarea>      
                         {% elif subquestion.type == "dropdown" %}
-                        <select name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}"
+                        <select name="{{ survey.id }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
                             data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}">      
                         {% for choice in subquestion.choices %}
-                                <option>{{choice}}</option>
+                                <option>{{ choice }}</option>
                             {% endfor %}
                         </select>
                     {% elif subquestion.type == "boolean" %}
-                        <input type="radio" name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}" 
-                            value="Yes" id="Q{{forloop.counter}}A1"
+                        <input type="radio" name="{{ survey.id }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" 
+                            value="Yes" id="Q{{ forloop.counter }}A1"
                             data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}">      
                         <label for="Q2A1">Yes</label>
-                        <input type="radio" name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}" 
-                            value="No" id="Q{{forloop.counter}}A2"
+                        <input type="radio" name="{{ survey.id }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" 
+                            value="No" id="Q{{ forloop.counter }}A2"
                             data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}">      
                         <label for="Q2A2">No</label>
                     {% elif subquestion.type == "radio" %}
                         {% for choice in question.choices %}
-                            <input type="radio" name="{{survey.id}}-{{forloop.parentloop.parentloop.counter}}-{{forloop.parentloop.counter}}" 
-                                value="{{choice}}" id="Q{{forloop.parentloop.counter}}-{{forloop.counter}}"
+                            <input type="radio" name="{{ survey.id }}-{{ forloop.parentloop.parentloop.counter }}-{{ forloop.parentloop.counter }}" 
+                                value="{{ choice }}" id="Q{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
                                 data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}">      
-                                <label for="Q{{forloop.parentloop.counter}}-{{forloop.counter}}">{{choice}}</label>
+                                <label for="Q{{ forloop.parentloop.counter }}-{{ forloop.counter }}">{{ choice }}</label>
                         {% endfor %}
                     {% elif subquestion.type == "number_rating" %}
-                        <input type="range" min="{{subquestion.min}}" max="{{subquestion.max}}" 
-                            name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}"
+                        <input type="range" min="{{ subquestion.min }}" max="{{ subquestion.max }}" 
+                            name="{{ survey.id }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
                             data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}">
                     {% elif subquestion.type == "numerical" %}
-                        <input type="number" name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}"
+                        <input type="number" name="{{ survey.id }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
                             data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}"
-                            {% if subquestion.min != None %}min="{{question.min}}"{% endif %}
-                            {% if subquestion.max != None %}max="{{question.max}}"{% endif %}>      
+                            {% if subquestion.min != None %}min="{{ question.min }}"{% endif %}
+                            {% if subquestion.max != None %}max="{{ question.max }}"{% endif %}>      
                     {% elif subquestion.type == "email" %}
-                        <input type="email" name="{{survey.id}}-{{forloop.parentloop.counter}}-{{forloop.counter}}"
+                        <input type="email" name="{{ survey.id }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
                             data-optional="{% if subquestion.optional == null %}False{% else %}True{% endif %}">      
                     {% else %}
                         
