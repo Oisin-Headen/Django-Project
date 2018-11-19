@@ -2,11 +2,11 @@ var survey_json = {};
 var question = [
     "<div class=\"question\">",
         "<div>",
-            "<label>Question Text</label>",
+            "<label>Question Text <span class=\"required-marker\">*</span></label>",
             "<textarea class=\"question-text\"></textarea>",
         "</div>",
         "<div>",
-            "<label>Question Name</label>",
+            "<label>Question Name <span class=\"required-marker\">*</span></label>",
             "<input class=\"question-name\" type=\"text\">",
         "</div>",
         "<div>",
@@ -33,11 +33,11 @@ var question = [
 
 number_rating_extra = [
     "<div>",
-        "<label>Minimum Number</label>",
+        "<label>Minimum Number <span class=\"required-marker\">*</span></label>",
         "<input type=\"number\" class=\"minimum\" value=\"0\" required>",
     "</div>",
     "<div>",
-        "<label>Maximum Number</label>",
+        "<label>Maximum Number <span class=\"required-marker\">*</span></label>",
         "<input type=\"number\" class=\"maximum\" value=\"10\" required>",
     "</div>"
 ].join("\n");
@@ -55,7 +55,7 @@ numerical_extra = [
 
 multiple_choice_extra_option = [
     "<div class=\"option\">",
-        "<input type=\"text\" class=\"option-text\">",
+        "<input type=\"text\" class=\"option-text\"><span class=\"required-marker\">*</span>",
         "<p class=\"remove-option\">Remove Option</p>",
     "</div>"
 ].join("\n");

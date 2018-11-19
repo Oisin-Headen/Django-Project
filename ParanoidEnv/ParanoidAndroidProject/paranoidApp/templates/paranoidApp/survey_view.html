@@ -31,7 +31,7 @@
 <input type="hidden" value="{{survey.id}}" name="survey-id">
 {% for question in survey.questions %}
     <section>
-        <label>Q{{forloop.counter}}: {{question.text}}</label>
+        <label>Q{{forloop.counter}}: {{question.text}} {% if not question.optional %}<span class="required-marker">*</span>{% endif %}</label>
         {% if question.type == "text" %}
             <textarea name="{{survey.id}}-{{forloop.counter}}" {% if question.optional == null %}required{% endif %}></textarea>
         {% elif question.type == "dropdown" %}

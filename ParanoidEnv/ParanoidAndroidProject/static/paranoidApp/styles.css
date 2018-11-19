@@ -36,3 +36,8 @@ td, th{
     margin: 5px;
     border: 2px solid gray;
 }
+
+.required-marker{
+    color: red;
+    text-emphasis: bold;
+}
