@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth import logout as django_logout
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
@@ -18,6 +19,8 @@ from django.views.decorators.http import require_POST
 from .models import Survey, SurveyCreator, SurveyUser
 from .forms import SignUpForm
 from .dataanalysis import data_analytics
+
+QUESTION_TEXT_LENGTH = 100
 
 QUESTION_TYPES = {
     "text": "Text",
@@ -190,7 +193,11 @@ def validate_questions(json_data):
     assert json_data['questions'], "Surveys must contain at least one question"
     for question in json_data['questions']:
         assert question['text'], "No text for question provided"
+        assert len(question['text']) <= QUESTION_TEXT_LENGTH, "Question too long"
+
         assert question['column-name'], "No name for question provided"
+        assert len(question['column-name']) <= QUESTION_TEXT_LENGTH, "Question name too long"
+
         assert question['type'] in QUESTION_TYPES, "Question type does not exist"
         if question['type'] == "number_rating":
             assert int(question['max']) > int(question['min']), "Max is less than min"
@@ -200,7 +207,8 @@ def validate_questions(json_data):
         elif question['type'] in ["dropdown", "radio"]:
             assert question['choices'], "No choices provided"
             for choice in question['choices']:
-                assert choice, "Choices cannot be blank. Try adding spaces for empyt choice."
+                assert choice, "Choices cannot be blank. Try adding spaces for empty choice."
+                assert len(choice) <= QUESTION_TEXT_LENGTH, "Choice too long"
         elif question['type'] == "boolean":
             if "on" in question.keys():
                 assert question['on'] in ["true", "false"], "On field must be true or false"
@@ -209,7 +217,11 @@ def validate_questions(json_data):
                 assert question['subquestions'], "No subquestions provided"
                 for subquestion in question['subquestions']:
                     assert subquestion['text'], "No text for subquestion provided"
+                    assert len(subquestion['text']) <= QUESTION_TEXT_LENGTH, "Subquestion too long"
+
                     assert subquestion['column-name'], "No name for subquestion provided"
+                    assert len(subquestion['column-name']) <= QUESTION_TEXT_LENGTH, "Subquestion name too long"
+
                     assert subquestion['type'] in QUESTION_TYPES, "Question type does not exist"
                     if subquestion['type'] == "number_rating":
                         assert (int(subquestion['max']) <
@@ -221,6 +233,9 @@ def validate_questions(json_data):
                     elif (subquestion['type'] == "dropdown" or
                           subquestion['type'] == "radio"):
                         assert subquestion['choices'], "No choices provided"
+                        for choice in subquestion['choices']:
+                            assert choice, "Choices cannot be blank. Try adding spaces for empty choice."
+                            assert len(choice) <= QUESTION_TEXT_LENGTH, "Choice too long"
 
 @login_required
 @require_POST
@@ -241,7 +256,14 @@ def create_survey_post(request):
     database_entry = Survey(survey_name=json_data['name'],
                             survey_desc=json_data['desc'],
                             creator=SurveyCreator.objects.get(user=request.user.id))
-    database_entry.save()
+    try:
+        database_entry.full_clean()
+        database_entry.save()
+    except ValidationError:
+        messages.add_message(request, messages.ERROR,
+                             "Error creating survey. The survey's name or description " +
+                             "were too long, or you were improperly logged in.")
+        return HttpResponseRedirect(reverse("error"))
     survey_id = database_entry.pk
 
     current_folder = os.path.dirname(os.path.abspath(__file__))
