@@ -32,6 +32,17 @@ QUESTION_TYPES = {
     "numerical": "Number"
 }
 
+def delete_survey_data(survey_number):
+    """Helper function to delete survey"""
+    current_folder = os.path.dirname(os.path.abspath(__file__))
+    survey_file = os.path.join(current_folder, "data/survey" + str(survey_number) + ".json")
+    answers_file = os.path.join(current_folder, "data/survey" + str(survey_number) + ".csv")
+    try:
+        os.remove(answers_file)
+        os.remove(survey_file)
+    except OSError:
+        pass
+
 def index(request):
     """The Index Page"""
     all_surveys = Survey.objects.all()
@@ -123,8 +134,6 @@ def survey_post_data(request):
     """Take the posted data, validate, and store it"""
     try:
         survey_id = request.POST['survey-id']
-        # TODO possibly remove the test survey?
-        # ^ When test survey is generated on user command and added to the database
 
         current_folder = os.path.dirname(os.path.abspath(__file__))
         survey_file = os.path.join(current_folder, "data/survey" + str(survey_id) + ".json")
@@ -406,7 +415,42 @@ def assign_admin_powers_post(request):
         messages.add_message(request, messages.ERROR,
                              "That user does not exist")
         return HttpResponseRedirect(reverse('error'))
+    except KeyError:
+        messages.add_message(request, messages.ERROR,
+                             "No User Id provided")
+        return HttpResponseRedirect(reverse('error'))
 
+@require_POST
+@login_required
+def delete_user_post(request):
+    """Delete a specified user"""
+    if request.user.is_admin is False:
+        messages.add_message(request, messages.ERROR,
+                             "You do not have permission to delete")
+        return HttpResponseRedirect(reverse('error'))
+    try:
+        user_id = request.POST['user_id']
+        user = get_object_or_404(SurveyUser, pk=user_id)
+        if user.is_admin is True:
+            messages.add_message(request, messages.ERROR,
+                                 "You cannot delete admins")
+            return HttpResponseRedirect(reverse('error'))
+
+        user_surveys = Survey.objects.filter(creator=user_id)
+        for survey in user_surveys:
+            delete_survey_data(survey.pk)
+        SurveyUser.objects.get(pk=user_id).delete()
+
+
+        return HttpResponseRedirect(reverse('assign_admin'))
+    except Http404:
+        messages.add_message(request, messages.ERROR,
+                             "That user does not exist")
+        return HttpResponseRedirect(reverse('error'))
+    except KeyError:
+        messages.add_message(request, messages.ERROR,
+                             "No User Id provided")
+        return HttpResponseRedirect(reverse('error'))
 
 def analyse_data(request, survey_id=-1):
     """testing data analysis"""

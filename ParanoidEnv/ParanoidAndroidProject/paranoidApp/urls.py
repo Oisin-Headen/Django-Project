@@ -27,6 +27,7 @@ urlpatterns = [
 
     path('admins/', views.assign_admin_powers, name="assign_admin"),
     path('admins/assign/', views.assign_admin_powers_post, name="assign_admin_post"),
+    path('admins/delete/', views.delete_user_post, name="delete_user_post"),
 
     path('view/sample/analytics', views.analyse_data, name="analyse_data"),
     path('view/<int:survey_id>/analytics', views.analyse_data, name="analyse_data"),
